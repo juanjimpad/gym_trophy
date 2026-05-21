@@ -48,6 +48,8 @@ export const es = {
   clientsPanelTitle:      "Clientes",
   clientsAddBtn:          "+ Añadir",
   clientsEmpty:           "Sin clientes todavía.<br>Pulsa \"+ Añadir\" para comenzar.",
+  clientsSearchPh:        "Buscar cliente…",
+  clientsNoResults:       "Sin resultados.",
   newClientTitle:         "Nuevo cliente",
   newClientNamePh:        "Nombre y apellido",
   sexNone:                "Sin especificar",

@@ -61,6 +61,7 @@ function startDataListeners() {
 
 document.getElementById("app").addEventListener("click", handleClick);
 document.getElementById("app").addEventListener("change", handleChange);
+document.getElementById("app").addEventListener("input", handleInput);
 
 function handleClick(e) {
   // Walk up to find nearest element with data-action
@@ -178,7 +179,7 @@ function handleClick(e) {
       break;
 
     case "close-clients-panel":
-      if (e.target === el) { state.showClientsPanel = false; render(); }
+      if (e.target === el) { state.showClientsPanel = false; state.clientsSearch = ""; render(); }
       break;
 
     case "open-add-client":
@@ -363,6 +364,16 @@ function handleClick(e) {
   }
 }
 
+function handleInput(e) {
+  if (e.target.id === "clientsSearch") {
+    const pos = e.target.selectionStart;
+    state.clientsSearch = e.target.value;
+    render();
+    const el = document.getElementById("clientsSearch");
+    if (el) { el.focus(); el.setSelectionRange(pos, pos); }
+  }
+}
+
 function handleChange(e) {
   // num-input blur → save field
   if (e.target.classList.contains("num-input")) {
@@ -385,7 +396,7 @@ document.addEventListener("keydown", e => {
     if (state.showEditClientModal)    { state.showEditClientModal    = false; render(); return; }
     if (state.showAddClientModal)     { state.showAddClientModal     = false; render(); return; }
     if (state.showAccessPanel)        { state.showAccessPanel        = false; render(); return; }
-    if (state.showClientsPanel)       { state.showClientsPanel       = false; render(); return; }
+    if (state.showClientsPanel)       { state.showClientsPanel = false; state.clientsSearch = ""; render(); return; }
   }
   if (e.key === "Enter") {
     const focused = document.activeElement;
@@ -414,6 +425,7 @@ function flushFocusedInput() {
 
 function closeAllModals() {
   state.showClientsPanel      = false;
+  state.clientsSearch         = "";
   state.showAddClientModal    = false;
   state.showEditClientModal   = false;
   state.showAddExModal        = false;
@@ -424,7 +436,7 @@ function closeAllModals() {
 function handleModalClose(action) {
   switch (action) {
     case "close-access-panel":    state.showAccessPanel       = false; break;
-    case "close-clients-panel":   state.showClientsPanel      = false; break;
+    case "close-clients-panel":   state.showClientsPanel = false; state.clientsSearch = ""; break;
     case "close-add-client":      state.showAddClientModal    = false; break;
     case "close-edit-client":     state.showEditClientModal   = false; break;
     case "close-add-ex":          state.showAddExModal        = false; break;

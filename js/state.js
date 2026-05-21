@@ -18,6 +18,7 @@ export const state = {
 
   // Modal/overlay visibility
   showClientsPanel:     false,
+  clientsSearch:        "",
   showAddClientModal:   false,
   showEditClientModal:  false,
   showAddExModal:       false,

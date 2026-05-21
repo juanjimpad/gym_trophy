@@ -195,18 +195,23 @@ function renderAccessPanel() {
 // ── Clients panel (overlay) ───────────────────────────────────────────────────
 
 function renderClientsPanel() {
-  const sorted = Object.entries(state.clients).sort((a, b) => a[1].name.localeCompare(b[1].name));
-  const rows = sorted.length === 0
+  const q      = state.clientsSearch.trim().toLowerCase();
+  const all    = Object.entries(state.clients).sort((a, b) => a[1].name.localeCompare(b[1].name));
+  const sorted = q ? all.filter(([, c]) => c.name.toLowerCase().includes(q)) : all;
+
+  const rows = all.length === 0
     ? `<div class="empty-panel">${t.clientsEmpty}</div>`
-    : sorted.map(([k, c]) => `
-        <div class="panel-client-row">
-          <div class="avatar">${esc(getInitials(c.name))}</div>
-          <span class="panel-client-name">${esc(c.name)}</span>
-          <div class="panel-client-actions">
-            <button class="btn-sm btn-blue" data-action="edit-client" data-key="${k}">${t.edit}</button>
-            <button class="btn-sm btn-red"  data-action="delete-client" data-key="${k}">${t.delete}</button>
-          </div>
-        </div>`).join("");
+    : sorted.length === 0
+      ? `<div class="empty-panel">${t.clientsNoResults}</div>`
+      : sorted.map(([k, c]) => `
+          <div class="panel-client-row">
+            <div class="avatar">${esc(getInitials(c.name))}</div>
+            <span class="panel-client-name">${esc(c.name)}</span>
+            <div class="panel-client-actions">
+              <button class="btn-sm btn-blue" data-action="edit-client" data-key="${k}">${t.edit}</button>
+              <button class="btn-sm btn-red"  data-action="delete-client" data-key="${k}">${t.delete}</button>
+            </div>
+          </div>`).join("");
 
   return `
     <div class="panel-bg" data-action="close-clients-panel">
@@ -214,6 +219,10 @@ function renderClientsPanel() {
         <div class="panel-header">
           <span class="panel-title">${t.clientsPanelTitle}</span>
           <button class="btn-sm btn-green" data-action="open-add-client">${t.clientsAddBtn}</button>
+        </div>
+        <div class="panel-search">
+          <input class="search-input" id="clientsSearch" type="search"
+            placeholder="${t.clientsSearchPh}" value="${esc(state.clientsSearch)}" autocomplete="off">
         </div>
         <div class="panel-body">${rows}</div>
       </div>
