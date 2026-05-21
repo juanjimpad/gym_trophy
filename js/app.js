@@ -104,38 +104,12 @@ function handleClick(e) {
 
     case "open-access-panel":
       state.showAccessPanel = true;
-      state.accessError     = null;
-      state.accessSuccess   = false;
       render();
       break;
 
     case "close-access-panel":
       if (e.target === el) { state.showAccessPanel = false; render(); }
       break;
-
-    case "confirm-create-user": {
-      const email    = document.getElementById("accessEmail")?.value?.trim();
-      const password = document.getElementById("accessPassword")?.value;
-      state.accessError   = null;
-      state.accessSuccess = false;
-      if (!email || !password) { state.accessError = t.accessFillFields; render(); break; }
-      if (password.length < 6) { state.accessError = t.accessPasswordShort; render(); break; }
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(() => {
-          state.accessSuccess = true;
-          state.accessError   = null;
-          render();
-        })
-        .catch(err => {
-          state.accessError = err.code === "auth/email-already-in-use"
-            ? t.accessEmailInUse
-            : err.code === "auth/invalid-email"
-            ? t.accessInvalidEmail
-            : t.accessCreateError;
-          render();
-        });
-      break;
-    }
 
     // ── Navigation ──────────────────────────────────────────────────────────
     case "go-home":

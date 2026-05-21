@@ -28,8 +28,6 @@ export const state = {
   currentUser:       null,
   loginError:        null,
   showAccessPanel:   false,
-  accessError:       null,
-  accessSuccess:     false,
 
   // UI helpers
   chartInstance: null,

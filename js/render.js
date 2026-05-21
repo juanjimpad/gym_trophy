@@ -159,8 +159,6 @@ function renderHome() {
 // ── Access panel ─────────────────────────────────────────────────────────────
 
 function renderAccessPanel() {
-  const error   = state.accessError   ? `<div class="login-error">${state.accessError}</div>`     : "";
-  const success = state.accessSuccess ? `<div class="access-success">${t.accessSuccess}</div>` : "";
   return `
     <div class="panel-bg panel-bg-center" data-action="close-access-panel">
       <div class="panel panel-centered" id="accessPanel">
@@ -180,15 +178,6 @@ function renderAccessPanel() {
             </div>
             <a class="home-kofi" href="https://ko-fi.com/juanjimpad" target="_blank" rel="noopener">${t.kofiBtn}</a>
           </div>
-
-          <div class="access-divider"></div>
-
-          <div class="access-section-title">${t.accessSectionTitle}</div>
-          <p class="access-hint">${t.accessHint}</p>
-          <input class="modal-input" id="accessEmail"    type="email"    placeholder="${t.accessEmailPh}" autocomplete="off">
-          <input class="modal-input" id="accessPassword" type="password" placeholder="${t.accessPasswordPh}">
-          ${error}${success}
-          <button class="btn-save" data-action="confirm-create-user">${t.accessCreateBtn}</button>
 
           <div class="access-divider"></div>
 
