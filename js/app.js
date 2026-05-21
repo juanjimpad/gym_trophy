@@ -3,7 +3,7 @@ import { state }                      from "./state.js";
 import { mergeClient, isEditing }     from "./utils.js";
 import { setDb, adj, setField, setBand, saveSession,
          addClient, updateClientProfile, deleteClient, deleteSession,
-         addCustomExercise, addChallenge, deleteChallenge,
+         addCustomExercise, addChallenge, finishChallenge, deleteChallenge,
          saveChallengeResult, migrateIfNeeded } from "./db.js";
 import { render, renderLogin, showToast, showSaving, showSaveError } from "./render.js";
 import { t } from "./i18n.js";
@@ -347,6 +347,17 @@ function handleClick(e) {
       state.showAddChallengeModal = false;
       render();
       break;
+
+    case "finish-challenge": {
+      const key = el.dataset.key ?? state.selectedChallengeKey;
+      if (!confirm(t.finishChallengeConfirm)) break;
+      finishChallenge(key)
+        .then(() => showToast(t.finishChallengeDone))
+        .catch(() => showSaveError());
+      state.view = "challenges-list";
+      render();
+      break;
+    }
 
     case "delete-challenge": {
       const key  = el.dataset.key ?? state.selectedChallengeKey;

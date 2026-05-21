@@ -603,51 +603,68 @@ function renderExerciseHistory() {
 
 // ── Challenges: list ──────────────────────────────────────────────────────────
 
+function challengeCard(k, ch) {
+  const active  = isChallengeActive(ch);
+  const started = isChallengeStarted(ch);
+  const results = ch.results ?? {};
+  const isTime  = ch.metric === "time";
+  const vals    = Object.entries(results).map(([, r]) => r.value);
+  const topVal  = vals.length ? (isTime ? Math.min(...vals) : Math.max(...vals)) : null;
+  const topCk   = topVal !== null ? Object.keys(results).find(ck => results[ck].value === topVal) : null;
+  const topName = topCk ? (state.clients[topCk]?.name ?? "—") : null;
+
+  const leaderBadge = topName
+    ? `<span class="top-badge">👑 ${esc(topName)} · ${formatMetricValue(topVal, ch.metric)}</span>`
+    : `<span class="no-record">${t.noResultsYet}</span>`;
+
+  const dateRange = (ch.startDate || ch.endDate)
+    ? `<span class="challenge-dates">${ch.startDate ? formatDateStr(ch.startDate) : "?"} → ${ch.endDate ? formatDateStr(ch.endDate) : "∞"}</span>`
+    : "";
+
+  const statusBadge = !started
+    ? `<span class="ch-badge ch-badge-pending">${t.badgePending}</span>`
+    : active
+      ? `<span class="ch-badge ch-badge-active">${t.badgeActive}</span>`
+      : `<span class="ch-badge ch-badge-finished">${t.badgeFinished}</span>`;
+
+  return `
+    <div class="challenge-card${!active ? " challenge-inactive" : ""}" data-action="go-challenge" data-key="${k}">
+      <div class="challenge-card-inner">
+        <div class="challenge-card-header">
+          <div class="challenge-name-row">
+            <span class="challenge-name">${esc(ch.name)}</span>
+            ${statusBadge}
+          </div>
+          <span class="challenge-meta">${ch.exerciseName ? esc(ch.exerciseName) + " · " : ""}${metricLabel(ch.metric)}${ch.duration ? " · " + formatDuration(ch.duration) : ""} ${dateRange}</span>
+        </div>
+        ${leaderBadge}
+      </div>
+      <span class="ex-list-arrow">›</span>
+    </div>`;
+}
+
 function renderChallengesList() {
   const addModal = state.showAddChallengeModal ? renderAddChallengeModal() : "";
-  const sorted   = Object.entries(state.challenges).sort((a, b) => b[1].createdAt - a[1].createdAt);
+  const all      = Object.entries(state.challenges);
 
-  const cards = sorted.length === 0
-    ? `<div class="empty">${t.challengesEmpty}</div>`
-    : sorted.map(([k, ch]) => {
-        const active   = isChallengeActive(ch);
-        const started  = isChallengeStarted(ch);
-        const results  = ch.results ?? {};
-        const isTime   = ch.metric === "time";
-        const vals     = Object.entries(results).map(([, r]) => r.value);
-        const topVal   = vals.length ? (isTime ? Math.min(...vals) : Math.max(...vals)) : null;
-        const topCk    = topVal !== null ? Object.keys(results).find(ck => results[ck].value === topVal) : null;
-        const topName  = topCk ? (state.clients[topCk]?.name ?? "—") : null;
+  const active   = all
+    .filter(([, ch]) => isChallengeActive(ch))
+    .sort((a, b) => b[1].createdAt - a[1].createdAt);
 
-        const leaderBadge = topName
-          ? `<span class="top-badge">👑 ${esc(topName)} · ${formatMetricValue(topVal, ch.metric)}</span>`
-          : `<span class="no-record">${t.noResultsYet}</span>`;
+  const finished = all
+    .filter(([, ch]) => !isChallengeActive(ch))
+    .sort((a, b) => (b[1].endDate ?? "").localeCompare(a[1].endDate ?? ""));
 
-        const dateRange = (ch.startDate || ch.endDate)
-          ? `<span class="challenge-dates">${ch.startDate ? formatDateStr(ch.startDate) : "?"} → ${ch.endDate ? formatDateStr(ch.endDate) : "∞"}</span>`
-          : "";
-
-        const statusBadge = !started
-          ? `<span class="ch-badge ch-badge-pending">${t.badgePending}</span>`
-          : active
-            ? `<span class="ch-badge ch-badge-active">${t.badgeActive}</span>`
-            : `<span class="ch-badge ch-badge-finished">${t.badgeFinished}</span>`;
-
-        return `
-          <div class="challenge-card${!active ? " challenge-inactive" : ""}" data-action="go-challenge" data-key="${k}">
-            <div class="challenge-card-inner">
-              <div class="challenge-card-header">
-                <div class="challenge-name-row">
-                  <span class="challenge-name">${esc(ch.name)}</span>
-                  ${statusBadge}
-                </div>
-                <span class="challenge-meta">${ch.exerciseName ? esc(ch.exerciseName) + " · " : ""}${metricLabel(ch.metric)}${ch.duration ? " · " + formatDuration(ch.duration) : ""} ${dateRange}</span>
-              </div>
-              ${leaderBadge}
-            </div>
-            <span class="ex-list-arrow">›</span>
-          </div>`;
-      }).join("");
+  let cards;
+  if (all.length === 0) {
+    cards = `<div class="empty">${t.challengesEmpty}</div>`;
+  } else {
+    const activeHtml   = active.map(([k, ch]) => challengeCard(k, ch)).join("");
+    const finishedHtml = finished.length
+      ? `<div class="section-label">${t.badgeFinished}</div>` + finished.map(([k, ch]) => challengeCard(k, ch)).join("")
+      : "";
+    cards = activeHtml + finishedHtml;
+  }
 
   return `
     ${header(
@@ -715,9 +732,14 @@ function renderChallengeDetail() {
   const ch     = state.challenges[key];
   if (!ch) return renderChallengesList();
 
-  const active  = isChallengeActive(ch);
-  const isTime  = ch.metric === "time";
-  const results = ch.results ?? {};
+  const active   = isChallengeActive(ch);
+  const started  = isChallengeStarted(ch);
+  const isTime   = ch.metric === "time";
+  const results  = ch.results ?? {};
+
+  const daysUntilStart = ch.startDate && !started
+    ? Math.ceil((new Date(ch.startDate) - new Date(todayStr())) / 86400000)
+    : 0;
 
   // For time metric: lower = better (ascending); others: higher = better (descending)
   const clientsSorted = Object.entries(state.clients)
@@ -735,7 +757,9 @@ function renderChallengeDetail() {
 
   const inactiveBanner = !active
     ? `<div class="finished-banner">${t.challengeFinishedBanner}</div>`
-    : "";
+    : !started
+      ? `<div class="pending-banner">${t.daysUntil(daysUntilStart)}</div>`
+      : "";
 
   const chRowFn = (item, rank) => {
     const valStr    = item.entry ? formatMetricValue(item.entry.value, ch.metric) : `<span class="no-record-sm">${t.noResultSm}</span>`;
@@ -743,9 +767,11 @@ function renderChallengeDetail() {
     const medal     = rank ? `<span class="medal">${medalEmoji(rank)}</span>` : `<span class="medal rank-none">—</span>`;
     const age       = calcAge(item.birthDate);
     const ageStr    = age !== null ? `<span class="lb-age">${age} ${t.ageUnit}</span>` : "";
-    const actionBtn = active
-      ? `<button class="btn-sm btn-blue" data-action="open-challenge-result" data-client="${item.clientKey}">${item.entry ? t.editResult : t.addResult}</button>`
-      : "";
+    const actionBtn = !started
+      ? `<span class="countdown-badge">${t.daysUntil(daysUntilStart)}</span>`
+      : active
+        ? `<button class="btn-sm btn-blue" data-action="open-challenge-result" data-client="${item.clientKey}">${item.entry ? t.editResult : t.addResult}</button>`
+        : "";
     return `
       <div class="leaderboard-row${rank === 1 ? " rank-gold" : rank === 2 ? " rank-silver" : rank === 3 ? " rank-bronze" : ""}">
         ${medal}
@@ -764,6 +790,9 @@ function renderChallengeDetail() {
   const dateInfo = (ch.startDate || ch.endDate)
     ? `<span class="challenge-info-item">📅 ${ch.startDate ? formatDateStr(ch.startDate) : "?"} → ${ch.endDate ? formatDateStr(ch.endDate) : "∞"}</span>`
     : "";
+  const finishBtn = !ch.endDate
+    ? `<button class="btn-finish-challenge" data-action="finish-challenge" data-key="${key}">${t.finishChallengeBtn}</button>`
+    : "";
 
   return `
     ${header(
@@ -778,9 +807,9 @@ function renderChallengeDetail() {
         <span class="challenge-info-item">📊 ${metricLabel(ch.metric)}</span>
         ${ch.duration ? `<span class="challenge-info-item">⏱ ${formatDuration(ch.duration)}</span>` : ""}
         ${dateInfo}
+        ${finishBtn}
       </div>
-      <div class="section-label">${t.ranking}</div>
-      ${rows}
+      ${started ? `<div class="section-label">${t.ranking}</div>${rows}` : ""}
     </div>
     ${resultModal}`;
 }

@@ -150,6 +150,15 @@ export function addChallenge({ name, exerciseName, duration, metric, startDate, 
   });
 }
 
+export function finishChallenge(key) {
+  const today = new Date().toISOString().slice(0, 10);
+  if (state.challenges[key]) {
+    state.challenges[key].endDate  = today;
+    state.challenges[key].finished = true;
+  }
+  return uref(`challenges/${key}`).update({ endDate: today, finished: true });
+}
+
 export function deleteChallenge(key) {
   return uref("challenges/" + key).remove();
 }

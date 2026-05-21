@@ -51,6 +51,7 @@ export function metricUnit(metric) {
 }
 
 export function isChallengeActive(ch) {
+  if (ch.finished) return false;
   if (!ch.endDate) return true;
   return todayStr() <= ch.endDate;
 }
