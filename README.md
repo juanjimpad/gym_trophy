@@ -119,13 +119,17 @@ gym_trophy/
 ```json
 {
   "rules": {
-    ".read":  "auth != null",
-    ".write": "auth != null"
+    "users": {
+      "$uid": {
+        ".read":  "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    }
   }
 }
 ```
 
-Solo los usuarios autenticados pueden leer y escribir datos.
+Cada usuario solo puede leer y escribir sus propios datos.
 
 ---
 

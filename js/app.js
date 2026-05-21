@@ -4,7 +4,7 @@ import { mergeClient, isEditing }     from "./utils.js";
 import { setDb, adj, setField, setBand, saveSession,
          addClient, updateClientProfile, deleteClient, deleteSession,
          addCustomExercise, addChallenge, deleteChallenge,
-         saveChallengeResult }         from "./db.js";
+         saveChallengeResult, migrateIfNeeded } from "./db.js";
 import { render, renderLogin, showToast, showSaving, showSaveError } from "./render.js";
 import { t } from "./i18n.js";
 
@@ -17,44 +17,62 @@ setDb(db);
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
-auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(async user => {
   state.currentUser = user ?? null;
   if (user) {
-    // Start data listeners only after login
-    startDataListeners();
+    try { await migrateIfNeeded(); } catch (_) {}
+    startDataListeners(user.uid);
+  } else {
+    stopDataListeners();
   }
   render();
 });
 
-let listenersStarted = false;
-function startDataListeners() {
-  if (listenersStarted) return;
-  listenersStarted = true;
+let listenerRefs = [];
 
-  db.ref(".info/connected").on("value", snap => {
+function stopDataListeners() {
+  listenerRefs.forEach(r => r.off());
+  listenerRefs = [];
+  state.clients         = {};
+  state.customExercises = {};
+  state.challenges      = {};
+}
+
+function startDataListeners(uid) {
+  stopDataListeners();
+
+  const connRef = db.ref(".info/connected");
+  connRef.on("value", snap => {
     const wasOnline = state.isOnline;
     state.isOnline  = snap.val() === true;
     const dot = document.getElementById("statusDot");
     if (dot) dot.className = "status-dot" + (state.isOnline ? " online" : "");
     if (wasOnline !== state.isOnline) render();
   });
+  listenerRefs.push(connRef);
 
-  db.ref("customExercises").on("value", snap => {
+  const exRef = db.ref(`users/${uid}/customExercises`);
+  exRef.on("value", snap => {
     state.customExercises = snap.val() ?? {};
     Object.values(state.clients).forEach(mergeClient);
     if (!isEditing()) render();
   });
+  listenerRefs.push(exRef);
 
-  db.ref("clients").on("value", snap => {
+  const clientsRef = db.ref(`users/${uid}/clients`);
+  clientsRef.on("value", snap => {
     state.clients = snap.val() ?? {};
     Object.values(state.clients).forEach(mergeClient);
     if (!isEditing()) render();
   });
+  listenerRefs.push(clientsRef);
 
-  db.ref("challenges").on("value", snap => {
+  const challengesRef = db.ref(`users/${uid}/challenges`);
+  challengesRef.on("value", snap => {
     state.challenges = snap.val() ?? {};
     if (!isEditing()) render();
   });
+  listenerRefs.push(challengesRef);
 }
 
 // ── Event delegation ──────────────────────────────────────────────────────────
