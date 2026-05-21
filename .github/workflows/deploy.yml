@@ -39,6 +39,9 @@ jobs:
           };
           ENDOFFILE
 
+      - name: Inject build version for cache busting
+        run: sed -i "s/BUILD_VERSION/$(git rev-parse --short HEAD)/g" sw.js
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
