@@ -134,7 +134,7 @@ Solo los usuarios autenticados pueden leer y escribir datos.
 ### 1. Clona el repositorio
 
 ```bash
-git clone https://github.com/juanjimpad/gym-trophy.git
+git clone https://github.com/juanjimpad/gym_trophy.git
 cd gym-trophy/gym_trophy
 ```
 
