@@ -10,7 +10,10 @@ const uref = (path)   => db.ref(`users/${uid()}/${path}`);
 
 // ── Migration (flat root → users/{uid}/) ──────────────────────────────────────
 
+const MIGRATED_KEY = "gym_trophy_migrated";
+
 export async function migrateIfNeeded() {
+  if (localStorage.getItem(MIGRATED_KEY)) return;
   try {
     const [clientsSnap, challengesSnap, exSnap] = await Promise.all([
       db.ref("clients").once("value"),
@@ -22,7 +25,10 @@ export async function migrateIfNeeded() {
     const oldChallenges = challengesSnap.val();
     const oldEx         = exSnap.val();
 
-    if (!oldClients && !oldChallenges && !oldEx) return;
+    if (!oldClients && !oldChallenges && !oldEx) {
+      localStorage.setItem(MIGRATED_KEY, "1");
+      return;
+    }
 
     const u   = uid();
     const upd = {};
@@ -34,6 +40,7 @@ export async function migrateIfNeeded() {
     upd["customExercises"] = null;
 
     await db.ref().update(upd);
+    localStorage.setItem(MIGRATED_KEY, "1");
   } catch (_) {
     // Rutas antiguas no accesibles: migración ya realizada o no necesaria
   }

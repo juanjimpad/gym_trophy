@@ -120,7 +120,7 @@ function renderHome() {
       `<span class="app-name">🏆 Gym Trophy</span>`,
       "",
       `<div class="header-right">
-        <span class="header-user">${state.currentUser?.displayName || state.currentUser?.email || ""}</span>
+        <span class="header-user">${esc(state.currentUser?.displayName || state.currentUser?.email || "")}</span>
         <button class="btn-icon" data-action="open-access-panel" title="${t.infoPanelTitle}">ℹ</button>
         <button class="btn-icon btn-logout" data-action="logout" title="${t.logoutConfirm}">↩</button>
       </div>`
@@ -245,7 +245,7 @@ function renderAddClientModal() {
     <div class="modal-bg" data-action="close-add-client">
       <div class="modal" id="addClientModal">
         <div class="modal-title">${t.newClientTitle}</div>
-        <input class="modal-input" id="newClientInput" placeholder="${t.newClientNamePh}" autocomplete="off">
+        <input class="modal-input" id="newClientInput" placeholder="${t.newClientNamePh}" autocomplete="off" maxlength="80">
         <div class="metric-selector">
           <label class="metric-opt">
             <input type="radio" name="newClientSex" value="" checked>
@@ -292,7 +292,7 @@ function renderEditClientModal() {
     <div class="modal-bg" data-action="close-edit-client">
       <div class="modal" id="editClientModal">
         <div class="modal-title">${t.editClientTitle}</div>
-        <input class="modal-input" id="editClientInput" value="${esc(name)}" autocomplete="off">
+        <input class="modal-input" id="editClientInput" value="${esc(name)}" autocomplete="off" maxlength="80">
         <div class="metric-selector">${sexOpts}</div>
         <label class="date-label" style="display:block;margin-bottom:6px">${t.birthDateLabel}</label>
         <input type="date" class="modal-input" id="editClientBirthDate" value="${birthDate}">
@@ -344,7 +344,7 @@ function renderAddExModal() {
     <div class="modal-bg" data-action="close-add-ex">
       <div class="modal">
         <div class="modal-title">${t.newExTitle}</div>
-        <input class="modal-input" id="newExInput" placeholder="${t.newExPh}" autocomplete="off">
+        <input class="modal-input" id="newExInput" placeholder="${t.newExPh}" autocomplete="off" maxlength="60">
         <div class="modal-actions">
           <button class="btn-cancel" data-action="close-add-ex">${t.cancel}</button>
           <button class="btn-confirm" data-action="confirm-add-ex">${t.addForAll}</button>
@@ -719,7 +719,7 @@ function renderAddChallengeModal() {
       <div class="modal modal-lg">
         <div class="modal-title">${t.newChallengeTitle}</div>
 
-        <input class="modal-input" id="challengeNameInput" placeholder="${t.challengeNamePh}" autocomplete="off">
+        <input class="modal-input" id="challengeNameInput" placeholder="${t.challengeNamePh}" autocomplete="off" maxlength="80">
 
         <div class="metric-selector">
           <label class="metric-opt">

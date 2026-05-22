@@ -20,5 +20,5 @@ export const CHALLENGE_DURATIONS = [
   { value: 300, label: "5 min"  },
 ];
 
-export function safeKey(n) { return n.replace(/[.#$[\]/\s]/g, "_"); }
+export function safeKey(n) { return n.replace(/[.#$[\]/\s"'<>]/g, "_"); }
 export const CHIN_KEY = safeKey("Chin ups");
