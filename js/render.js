@@ -238,6 +238,7 @@ function renderClientsList() {
       ${rows}
     </div>
     ${addModal}${editModal}`;
+}
 
 function renderAddClientModal() {
   return `
