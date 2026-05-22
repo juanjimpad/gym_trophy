@@ -8,6 +8,17 @@ import { setDb, adj, setField, setBand, saveSession,
 import { render, renderLogin, showToast, showSaving, showSaveError } from "./render.js";
 import { t } from "./i18n.js";
 
+// ── Connectivity ──────────────────────────────────────────────────────────────
+
+function checkOnline() {
+  const online = navigator.onLine;
+  if (state.isOnline !== online) {
+    state.isOnline = online;
+    render();
+  }
+  return online;
+}
+
 // ── Firebase init ─────────────────────────────────────────────────────────────
 
 firebase.initializeApp(FIREBASE_CONFIG);
@@ -40,16 +51,6 @@ function stopDataListeners() {
 
 function startDataListeners(uid) {
   stopDataListeners();
-
-  const connRef = db.ref(".info/connected");
-  connRef.on("value", snap => {
-    const wasOnline = state.isOnline;
-    state.isOnline  = snap.val() === true;
-    const dot = document.getElementById("statusDot");
-    if (dot) dot.className = "status-dot" + (state.isOnline ? " online" : "");
-    if (wasOnline !== state.isOnline) render();
-  });
-  listenerRefs.push(connRef);
 
   const exRef = db.ref(`users/${uid}/customExercises`);
   exRef.on("value", snap => {
@@ -103,12 +104,16 @@ function handleClick(e) {
       const email    = document.getElementById("loginEmail")?.value?.trim();
       const password = document.getElementById("loginPassword")?.value;
       if (!email || !password) { state.loginError = t.loginRequired; render(); break; }
+      if (!checkOnline()) break;
       document.getElementById("loginBtn").textContent = t.loginSigningIn;
       auth.signInWithEmailAndPassword(email, password)
-        .then(() => { state.loginError = null; })
+        .then(() => { state.loginError = null; state.isOnline = true; })
         .catch(err => {
+          checkOnline();
           state.loginError = err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found"
             ? t.loginBadCredentials
+            : err.code === "auth/network-request-failed"
+            ? t.offline
             : t.loginFailed;
           render();
         });
@@ -298,7 +303,7 @@ function handleClick(e) {
       const onlyEx = state.sessionOrigin === "leaderboard" ? state.selectedExKey : null;
       saveSession(clientKey, onlyEx)
         .then(() => showToast(t.sessionSaved))
-        .catch(err => { console.error("[saveSession] save failed:", err); showSaveError(t.sessionSaveError); });
+        .catch(err => { console.error("[saveSession] save failed:", err); checkOnline(); showSaveError(t.sessionSaveError); });
       state.view = state.sessionOrigin === "leaderboard" ? "weights-leaderboard" : "home";
       render();
       break;
@@ -308,7 +313,7 @@ function handleClick(e) {
       flushFocusedInput();
       adj(state.selectedClientKey, el.dataset.exk, el.dataset.field, parseInt(el.dataset.delta))
         .then(() => showSaving())
-        .catch(err => { console.error("[adj] save failed:", err); showSaveError(); });
+        .catch(err => { console.error("[adj] save failed:", err); checkOnline(); showSaveError(); });
       render();
       break;
     }
@@ -316,7 +321,7 @@ function handleClick(e) {
     case "set-band":
       setBand(state.selectedClientKey, el.dataset.exk, el.dataset.band)
         .then(() => showSaving())
-        .catch(err => { console.error("[setBand] save failed:", err); showSaveError(); });
+        .catch(err => { console.error("[setBand] save failed:", err); checkOnline(); showSaveError(); });
       render();
       break;
 

@@ -59,9 +59,6 @@ export function showSaveError(msg) {
   state.savingTimer = setTimeout(() => el.classList.remove("show", "error"), 4000);
 }
 
-function dotHtml() {
-  return `<span class="status-dot${state.isOnline ? " online" : ""}" id="statusDot"></span>`;
-}
 
 function header(left, center, right = "") {
   const offlineBanner = !state.isOnline
@@ -117,7 +114,7 @@ function renderHome() {
 
   return `
     ${header(
-      `<div class="header-dot">${dotHtml()}<span class="app-name">🏆 Gym Trophy</span></div>`,
+      `<span class="app-name">🏆 Gym Trophy</span>`,
       "",
       `<div class="header-right">
         <button class="btn-icon" data-action="open-access-panel" title="${t.infoPanelTitle}">ℹ</button>
