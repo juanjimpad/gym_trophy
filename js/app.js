@@ -187,8 +187,7 @@ function handleClick(e) {
 
     case "go-leaderboard":
       state.view = "weights-leaderboard";
-      // exk may already be set; if coming from ex-list row, update it
-      if (el.dataset.exk) state.selectedExKey = el.dataset.exk;
+      if (el.dataset.exk) { state.selectedExKey = el.dataset.exk; state.leaderboardSearch = ""; }
       render();
       break;
 
@@ -428,6 +427,13 @@ function handleInput(e) {
     state.clientsSearch = e.target.value;
     render();
     const el = document.getElementById("clientsSearch");
+    if (el) { el.focus(); el.setSelectionRange(pos, pos); }
+  }
+  if (e.target.id === "lbSearch") {
+    const pos = e.target.selectionStart;
+    state.leaderboardSearch = e.target.value;
+    render();
+    const el = document.getElementById("lbSearch");
     if (el) { el.focus(); el.setSelectionRange(pos, pos); }
   }
 }

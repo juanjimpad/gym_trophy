@@ -15,6 +15,7 @@ export const state = {
   selectedClientKey:    null,
   selectedExKey:        null,
   selectedChallengeKey: null,
+  leaderboardSearch:    "",
 
   // Modal/overlay visibility
   showClientsPanel:     false,

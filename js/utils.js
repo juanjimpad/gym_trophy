@@ -130,7 +130,9 @@ export function getLeaderboard(exKey) {
     if (a.value === null && b.value === null) return a.name.localeCompare(b.name);
     if (a.value === null) return 1;
     if (b.value === null) return -1;
-    return b.value - a.value;
+    if (b.value !== a.value) return b.value - a.value;
+    // Desempate por edad: mayor edad → mejor posición
+    return (calcAge(b.birthDate) ?? -1) - (calcAge(a.birthDate) ?? -1);
   });
 
   return results;

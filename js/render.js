@@ -207,15 +207,23 @@ function renderClientsPanel() {
     ? `<div class="empty-panel">${t.clientsEmpty}</div>`
     : sorted.length === 0
       ? `<div class="empty-panel">${t.clientsNoResults}</div>`
-      : sorted.map(([k, c]) => `
+      : sorted.map(([k, c]) => {
+          const sexEmoji = c.sex === "male" ? "♂" : c.sex === "female" ? "♀" : "";
+          const age      = calcAge(c.birthDate);
+          const meta     = [sexEmoji, age !== null ? `${age} ${t.ageUnit}` : ""].filter(Boolean).join(" · ");
+          return `
           <div class="panel-client-row">
             <div class="avatar">${esc(getInitials(c.name))}</div>
-            <span class="panel-client-name">${esc(c.name)}</span>
+            <div class="panel-client-info">
+              <span class="panel-client-name">${esc(c.name)}</span>
+              ${meta ? `<span class="panel-client-meta">${meta}</span>` : ""}
+            </div>
             <div class="panel-client-actions">
               <button class="btn-sm btn-blue" data-action="edit-client" data-key="${k}">${t.edit}</button>
               <button class="btn-sm btn-red"  data-action="delete-client" data-key="${k}">${t.delete}</button>
             </div>
-          </div>`).join("");
+          </div>`;
+        }).join("");
 
   return `
     <div class="panel-bg" data-action="close-clients-panel">
@@ -380,9 +388,9 @@ function renderSexGroups(board, rowFn, hasRecord = (e) => e.value !== null) {
 
   const hasSex = withMark.some(e => e.sex === "male" || e.sex === "female");
 
-  const section = (label, entries) => {
+  const section = (label, entries, rankOffset = 1) => {
     if (!entries.length) return "";
-    const rows = entries.map((e, i) => rowFn(e, i + 1)).join("");
+    const rows = entries.map((e, i) => rowFn(e, rankOffset + i)).join("");
     return `<div class="sex-section-label">${label}</div>${rows}`;
   };
 
@@ -393,7 +401,17 @@ function renderSexGroups(board, rowFn, hasRecord = (e) => e.value !== null) {
     const male    = withMark.filter(e => e.sex === "male");
     const female  = withMark.filter(e => e.sex === "female");
     const unknown = withMark.filter(e => e.sex !== "male" && e.sex !== "female");
-    ranked = section(t.sexMaleGroup, male) + section(t.sexFemaleGroup, female) + section(t.sexUnknownGroup, unknown);
+
+    const top3Male   = male.slice(0, 3);
+    const top3Female = female.slice(0, 3);
+    const rest       = [...male.slice(3), ...female.slice(3), ...unknown]
+      .sort((a, b) => (b.value ?? -1) - (a.value ?? -1));
+
+    const restHtml = rest.length
+      ? `<div class="sex-section-label">${t.restGroup}</div>` + rest.map(e => rowFn(e, null)).join("")
+      : "";
+
+    ranked = section(t.sexMaleGroup, top3Male) + section(t.sexFemaleGroup, top3Female) + restHtml;
   }
 
   const noMark = withoutMark.length
@@ -406,8 +424,11 @@ function renderSexGroups(board, rowFn, hasRecord = (e) => e.value !== null) {
 function renderWeightsLeaderboard() {
   const exKey  = state.selectedExKey;
   const exName = allExNames().find(n => safeKey(n) === exKey) ?? exKey;
-  const board  = getLeaderboard(exKey);
   const isChin = exKey === CHIN_KEY;
+  const q      = state.leaderboardSearch.trim().toLowerCase();
+  const board  = q
+    ? getLeaderboard(exKey).filter(e => e.name.toLowerCase().includes(q))
+    : getLeaderboard(exKey);
 
   const rows  = renderSexGroups(board, (e, rank) => lbWeightRow(e, rank, isChin, true));
   const empty = board.length === 0
@@ -420,6 +441,10 @@ function renderWeightsLeaderboard() {
       esc(exName)
     )}
     <div class="content">
+      <div class="panel-search">
+        <input class="search-input" id="lbSearch" type="search"
+          placeholder="${t.lbSearchPh}" value="${esc(state.leaderboardSearch)}" autocomplete="off">
+      </div>
       <div class="section-label">${t.bestRecord}</div>
       ${rows}${empty}
     </div>`;

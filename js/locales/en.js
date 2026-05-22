@@ -80,13 +80,15 @@ export const en = {
 
   // ── Leaderboard ──────────────────────────────────────────────────────────────
   backWeights:            "‹ Weights",
+  lbSearchPh:             "Search client…",
   bestRecord:             "Best historical record",
   noRecord:               "No record",
   bodyweight:             "Bodyweight",
   noClientsLeaderboard:   "No clients yet.<br>Add clients from ⚙ on the home screen.",
-  sexMaleGroup:           "👨 Men",
-  sexFemaleGroup:         "👩 Women",
+  sexMaleGroup:           "👨 Top men",
+  sexFemaleGroup:         "👩 Top women",
   sexUnknownGroup:        "👤 No category",
+  restGroup:              "Others",
   noMark:                 "📋 No record",
   ageUnit:                "years",
 
