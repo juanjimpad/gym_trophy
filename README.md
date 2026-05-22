@@ -6,6 +6,8 @@
 
 Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para entrenadores personales que quieren llevar el control de pesos, series, repeticiones y retos grupales de sus clientes en tiempo real.
 
+**Demo:** [juanjimpad.github.io/gym_trophy](https://juanjimpad.github.io/gym_trophy/)
+
 ---
 
 ## Características
@@ -17,7 +19,7 @@ Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para ent
 - **Soporte multiidioma (ES / EN)** — La interfaz está disponible en español e inglés.
 - **PWA con soporte offline** — Service Worker que cachea los recursos estáticos. La app funciona sin conexión una vez cargada.
 - **Sincronización en la nube** — Datos guardados en Firebase Realtime Database. Cualquier cambio se refleja instantáneamente en todos los dispositivos.
-- **Acceso con contraseña** — Login con correo y contraseña mediante Firebase Authentication.
+- **Acceso seguro** — Login con correo/contraseña o con cuenta de Google mediante Firebase Authentication. Cada usuario tiene sus datos completamente aislados.
 - **Gestión de clientes** — Añadir, editar y eliminar clientes con nombre, sexo y fecha de nacimiento.
 - **Ejercicios personalizados** — Añade ejercicios propios que se aplican automáticamente a todos los clientes.
 - **Ganadores por sexo** — Rankings diferenciados para hombres y mujeres en ejercicios y retos.
@@ -30,7 +32,7 @@ Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para ent
 
 - HTML · CSS · JavaScript (ES Modules, sin frameworks ni bundler)
 - [Firebase Realtime Database](https://firebase.google.com/products/realtime-database) — persistencia y sincronización en tiempo real
-- [Firebase Authentication](https://firebase.google.com/products/auth) — acceso seguro con email y contraseña
+- [Firebase Authentication](https://firebase.google.com/products/auth) — acceso seguro con email/contraseña y Google Sign-In
 - [Chart.js](https://www.chartjs.org/) — gráficas de evolución por ejercicio
 - Alojado en [GitHub Pages](https://pages.github.com/) vía GitHub Actions
 
@@ -154,11 +156,12 @@ cd gym-trophy/gym_trophy
 ### 2. Configura Firebase
 
 1. Crea un proyecto en [Firebase Console](https://console.firebase.google.com)
-2. Activa **Realtime Database** (modo Europa) y **Authentication → Email/Password**
+2. Activa **Realtime Database** (modo Europa) y **Authentication → Email/Password** y/o **Google**
 3. Copia `js/firebase.example.js` → `js/firebase.js` y rellena tus credenciales
 4. Aplica las reglas de seguridad del apartado anterior
 5. En **Authentication → Users**, crea los usuarios que tendrán acceso
 6. En **Authentication → Settings → Authorized domains**, añade tu dominio de GitHub Pages
+7. Si usas Google Sign-In: una vez registrados todos los usuarios, deshabilita el registro automático en **Authentication → Settings**
 
 ### 3. Publica en GitHub Pages
 
