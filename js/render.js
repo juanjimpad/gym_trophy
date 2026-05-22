@@ -111,16 +111,27 @@ function renderLogin() {
 
 // ── Home ──────────────────────────────────────────────────────────────────────
 
+function userChip(user) {
+  const avatar = user.photoURL
+    ? `<img src="${esc(user.photoURL)}" alt="" referrerpolicy="no-referrer">`
+    : esc((user.displayName || user.email || "?")[0].toUpperCase());
+  const name = esc(user.displayName || user.email || "");
+  return `
+    <div class="user-chip">
+      <div class="user-avatar">${avatar}</div>
+      <span class="user-name">${name}</span>
+    </div>`;
+}
+
 function renderHome() {
-  const clientCount  = Object.keys(state.clients).length;
-  const accessPanel  = state.showAccessPanel   ? renderAccessPanel()   : "";
+  const accessPanel = state.showAccessPanel ? renderAccessPanel() : "";
 
   return `
     ${header(
       `<span class="app-name">🏆 Gym Trophy</span>`,
       "",
       `<div class="header-right">
-        <span class="header-user">${esc(state.currentUser?.displayName || state.currentUser?.email || "")}</span>
+        ${userChip(state.currentUser)}
         <button class="btn-icon" data-action="open-access-panel" title="${t.infoPanelTitle}">ℹ</button>
         <button class="btn-icon btn-logout" data-action="logout" title="${t.logoutConfirm}">↩</button>
       </div>`
