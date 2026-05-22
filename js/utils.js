@@ -131,8 +131,11 @@ export function getLeaderboard(exKey) {
     if (a.value === null) return 1;
     if (b.value === null) return -1;
     if (b.value !== a.value) return b.value - a.value;
-    // Desempate por edad: mayor edad → mejor posición
-    return (calcAge(b.birthDate) ?? -1) - (calcAge(a.birthDate) ?? -1);
+    // Desempate 1: mayor edad
+    const ageDiff = (calcAge(b.birthDate) ?? -1) - (calcAge(a.birthDate) ?? -1);
+    if (ageDiff !== 0) return ageDiff;
+    // Desempate 2: quien llegó antes al peso (fecha de registro más antigua)
+    return (a.ts ?? Infinity) - (b.ts ?? Infinity);
   });
 
   return results;
