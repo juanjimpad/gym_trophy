@@ -1,4 +1,5 @@
 const V = 'BUILD_VERSION';
+const IS_DEV = V === 'BUILD_VERSION';
 
 self.addEventListener('install', () => self.skipWaiting());
 
@@ -12,6 +13,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (!e.request.url.startsWith(self.location.origin)) return;
+  if (IS_DEV) return; // en local nunca cachear — siempre red directa
   e.respondWith(
     fetch(e.request)
       .then(res => {

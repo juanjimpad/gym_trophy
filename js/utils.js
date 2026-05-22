@@ -112,13 +112,17 @@ export function getLeaderboard(exKey) {
       const best = validEntries.reduce((m, e) => (e.reps || 0) > (m.reps || 0) ? e : m, validEntries[0]);
       results.push({ clientKey, name: client.name, sex, birthDate, value: best.reps, ts: best.ts, band: best.band ?? null, isChin: true });
     } else {
-      const validEntries = entries.filter(e => (e.weight || 0) > 0);
+      const validEntries = entries.filter(e => (e.reps || 0) > 0);
       if (!validEntries.length) {
         results.push({ clientKey, name: client.name, sex, birthDate, value: null, ts: null });
         return;
       }
-      const best = validEntries.reduce((m, e) => (e.weight || 0) > (m.weight || 0) ? e : m, validEntries[0]);
-      results.push({ clientKey, name: client.name, sex, birthDate, value: best.weight, ts: best.ts });
+      const best = validEntries.reduce((m, e) => {
+        const ew = e.weight ?? 0, mw = m.weight ?? 0;
+        if (ew !== mw) return ew > mw ? e : m;
+        return (e.reps || 0) > (m.reps || 0) ? e : m;
+      }, validEntries[0]);
+      results.push({ clientKey, name: client.name, sex, birthDate, value: best.weight ?? 0, ts: best.ts });
     }
   });
 

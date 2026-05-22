@@ -42,23 +42,39 @@ export async function migrateIfNeeded() {
 // ── Exercise adjustments ──────────────────────────────────────────────────────
 
 export function adj(clientKey, exKey, field, delta) {
-  const ex   = state.clients[clientKey].exercises[exKey];
-  const step = field === "weight" ? 2.5 : 1;
-  ex[field]  = Math.max(0, parseFloat(((ex[field] || 0) + delta * step).toFixed(1)));
-  return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex);
+  try {
+    const ex   = state.clients[clientKey].exercises[exKey];
+    const step = field === "weight" ? 2.5 : 1;
+    ex[field]  = Math.max(0, parseFloat(((ex[field] || 0) + delta * step).toFixed(1)));
+    console.log("[adj] writing", `users/${uid()}/clients/${clientKey}/exercises/${exKey}`, ex);
+    return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex);
+  } catch (e) {
+    console.error("[adj] error:", e, { clientKey, exKey, field });
+    return Promise.reject(e);
+  }
 }
 
 export function setField(clientKey, exKey, field, rawVal) {
-  const val = parseFloat(rawVal);
-  if (isNaN(val) || val < 0) return Promise.resolve();
-  const ex = state.clients[clientKey].exercises[exKey];
-  ex[field] = val;
-  return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex);
+  try {
+    const val = parseFloat(rawVal);
+    if (isNaN(val) || val < 0) return Promise.resolve();
+    const ex = state.clients[clientKey].exercises[exKey];
+    ex[field] = val;
+    return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex);
+  } catch (e) {
+    console.error("[setField] error:", e, { clientKey, exKey, field, rawVal });
+    return Promise.reject(e);
+  }
 }
 
 export function setBand(clientKey, exKey, bandId) {
-  state.clients[clientKey].exercises[exKey].band = bandId || null;
-  return uref(`clients/${clientKey}/exercises/${exKey}/band`).set(bandId || null);
+  try {
+    state.clients[clientKey].exercises[exKey].band = bandId || null;
+    return uref(`clients/${clientKey}/exercises/${exKey}/band`).set(bandId || null);
+  } catch (e) {
+    console.error("[setBand] error:", e, { clientKey, exKey, bandId });
+    return Promise.reject(e);
+  }
 }
 
 // ── Session save ──────────────────────────────────────────────────────────────
@@ -82,7 +98,7 @@ export function saveSession(clientKey, onlyExKey = null) {
     if (!onlyExKey) {
       const hasRealData = isChin
         ? (ex.band !== null || ex.reps !== 10 || ex.sets !== 3)
-        : (ex.weight > 0 || ex.reps !== 10 || ex.sets !== 3);
+        : (ex.reps > 0 && ex.sets > 0);
       if (!hasRealData) return;
     }
 

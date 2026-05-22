@@ -294,12 +294,13 @@ function handleClick(e) {
     // ── Session ──────────────────────────────────────────────────────────────
     case "save-session": {
       const clientKey = el.dataset.client ?? state.selectedClientKey;
-      // Flush any focused input first
       flushFocusedInput();
       const onlyEx = state.sessionOrigin === "leaderboard" ? state.selectedExKey : null;
       saveSession(clientKey, onlyEx)
         .then(() => showToast(t.sessionSaved))
-        .catch(() => showSaveError(t.sessionSaveError));
+        .catch(err => { console.error("[saveSession] save failed:", err); showSaveError(t.sessionSaveError); });
+      state.view = state.sessionOrigin === "leaderboard" ? "weights-leaderboard" : "home";
+      render();
       break;
     }
 
@@ -307,7 +308,7 @@ function handleClick(e) {
       flushFocusedInput();
       adj(state.selectedClientKey, el.dataset.exk, el.dataset.field, parseInt(el.dataset.delta))
         .then(() => showSaving())
-        .catch(() => showSaveError());
+        .catch(err => { console.error("[adj] save failed:", err); showSaveError(); });
       render();
       break;
     }
@@ -315,7 +316,7 @@ function handleClick(e) {
     case "set-band":
       setBand(state.selectedClientKey, el.dataset.exk, el.dataset.band)
         .then(() => showSaving())
-        .catch(() => showSaveError());
+        .catch(err => { console.error("[setBand] save failed:", err); showSaveError(); });
       render();
       break;
 
@@ -410,7 +411,7 @@ function handleChange(e) {
     if (exk && field && state.selectedClientKey) {
       setField(state.selectedClientKey, exk, field, e.target.value)
         ?.then(() => showSaving())
-        ?.catch(() => showSaveError());
+        ?.catch(err => { console.error("[setField] save failed:", err); showSaveError(); });
     }
   }
 }
