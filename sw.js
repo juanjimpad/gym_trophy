@@ -1,5 +1,5 @@
 const V = 'BUILD_VERSION';
-const IS_DEV = V === 'BUILD_VERSION';
+const IS_DEV = V.includes('BUILD_');
 
 self.addEventListener('install', () => self.skipWaiting());
 
