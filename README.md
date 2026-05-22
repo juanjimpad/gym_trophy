@@ -12,6 +12,10 @@ Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para ent
 
 - **Pesos · Series · Reps** — Ranking por ejercicio con la mejor marca histórica de cada cliente (👑). Leaderboard con medallas separado por sexo.
 - **Retos grupales** — Desafíos de repeticiones, calorías o tiempo con fecha de inicio y fin. Ranking en tiempo real separado por sexo. El reto queda inactivo pasada la fecha de fin.
+- **Historial de sesiones** — Consulta el historial completo de sesiones por ejercicio y cliente. Incluye gráfica de evolución del peso y opción de eliminar sesiones individuales.
+- **Buscador de clientes** — Filtrado en tiempo real sobre la lista de clientes mientras escribes.
+- **Soporte multiidioma (ES / EN)** — La interfaz está disponible en español e inglés.
+- **PWA con soporte offline** — Service Worker que cachea los recursos estáticos. La app funciona sin conexión una vez cargada.
 - **Sincronización en la nube** — Datos guardados en Firebase Realtime Database. Cualquier cambio se refleja instantáneamente en todos los dispositivos.
 - **Acceso con contraseña** — Login con correo y contraseña mediante Firebase Authentication.
 - **Gestión de clientes** — Añadir, editar y eliminar clientes con nombre, sexo y fecha de nacimiento.
@@ -37,6 +41,7 @@ Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para ent
 ```
 gym_trophy/
 ├── index.html
+├── sw.js               # Service Worker — caché offline y versionado de assets
 ├── css/
 │   └── style.css
 └── js/
@@ -44,6 +49,10 @@ gym_trophy/
     ├── config.js           # Ejercicios base, bandas, duraciones y constantes
     ├── firebase.js         # Credenciales Firebase (gitignoreado)
     ├── firebase.example.js # Plantilla de credenciales para nuevos despliegues
+    ├── i18n.js             # Módulo de internacionalización (idioma activo, t())
+    ├── locales/
+    │   ├── es.js           # Cadenas en español
+    │   └── en.js           # Cadenas en inglés
     ├── state.js            # Estado global mutable
     ├── utils.js            # Funciones puras: rankings, fechas, edad, agrupación
     ├── db.js               # Operaciones de escritura a Firebase
