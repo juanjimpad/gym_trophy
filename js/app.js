@@ -175,6 +175,11 @@ function handleClick(e) {
       nav("weights-list");
       break;
 
+    case "go-clients":
+      state.clientsSearch = "";
+      nav("clients-list");
+      break;
+
     case "go-challenges":
     case "go-challenges-list":
       nav("challenges-list");
@@ -188,7 +193,9 @@ function handleClick(e) {
     case "go-session": {
       const clientKey = el.dataset.client;
       state.selectedClientKey = clientKey;
-      state.sessionOrigin     = state.view === "weights-leaderboard" ? "leaderboard" : "clients-panel";
+      state.sessionOrigin     = state.view === "weights-leaderboard" ? "leaderboard"
+                              : state.view === "clients-list"         ? "clients-list"
+                              : "home";
       nav("session");
       break;
     }
@@ -209,15 +216,6 @@ function handleClick(e) {
       break;
 
     // ── Clients panel ────────────────────────────────────────────────────────
-    case "open-clients-panel":
-      state.showClientsPanel = true;
-      render();
-      break;
-
-    case "close-clients-panel":
-      if (e.target === el) { state.showClientsPanel = false; state.clientsSearch = ""; render(); }
-      break;
-
     case "open-add-client":
       state.showAddClientModal = true;
       render();
@@ -317,7 +315,9 @@ function handleClick(e) {
       saveSession(clientKey, onlyEx)
         .then(() => showToast(t.sessionSaved))
         .catch(err => { console.error("[saveSession] save failed:", err); checkOnline(); showSaveError(t.sessionSaveError); });
-      nav(state.sessionOrigin === "leaderboard" ? "weights-leaderboard" : "home");
+      nav(state.sessionOrigin === "leaderboard" ? "weights-leaderboard"
+        : state.sessionOrigin === "clients-list" ? "clients-list"
+        : "home");
       break;
     }
 
@@ -455,7 +455,7 @@ document.addEventListener("keydown", e => {
     if (state.showEditClientModal)    { state.showEditClientModal    = false; render(); return; }
     if (state.showAddClientModal)     { state.showAddClientModal     = false; render(); return; }
     if (state.showAccessPanel)        { state.showAccessPanel        = false; render(); return; }
-    if (state.showClientsPanel)       { state.showClientsPanel = false; state.clientsSearch = ""; render(); return; }
+    if (state.view === "clients-list") { nav("home"); return; }
   }
   if (e.key === "Enter") {
     const focused = document.activeElement;
@@ -483,7 +483,6 @@ function flushFocusedInput() {
 }
 
 function closeAllModals() {
-  state.showClientsPanel      = false;
   state.clientsSearch         = "";
   state.showAddClientModal    = false;
   state.showEditClientModal   = false;
@@ -495,7 +494,7 @@ function closeAllModals() {
 function handleModalClose(action) {
   switch (action) {
     case "close-access-panel":    state.showAccessPanel       = false; break;
-    case "close-clients-panel":   state.showClientsPanel = false; state.clientsSearch = ""; break;
+    case "close-clients-panel":   state.clientsSearch = ""; break;
     case "close-add-client":      state.showAddClientModal    = false; break;
     case "close-edit-client":     state.showEditClientModal   = false; break;
     case "close-add-ex":          state.showAddExModal        = false; break;

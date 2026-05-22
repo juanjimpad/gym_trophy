@@ -113,9 +113,6 @@ export function renderLogin() {
 
 function renderHome() {
   const clientCount  = Object.keys(state.clients).length;
-  const clientsPanel = state.showClientsPanel  ? renderClientsPanel()  : "";
-  const addModal     = state.showAddClientModal ? renderAddClientModal() : "";
-  const editModal    = state.showEditClientModal ? renderEditClientModal() : "";
   const accessPanel  = state.showAccessPanel   ? renderAccessPanel()   : "";
 
   return `
@@ -147,7 +144,7 @@ function renderHome() {
         <span class="category-arrow">›</span>
       </button>
 
-      <button class="category-card card-clients" data-action="open-clients-panel">
+      <button class="category-card card-clients" data-action="go-clients">
         <div class="category-icon">👥</div>
         <div class="category-body">
           <div class="category-title">${t.homeClientsTitle}</div>
@@ -157,7 +154,7 @@ function renderHome() {
       </button>
 
     </div>
-    ${clientsPanel}${addModal}${editModal}${accessPanel}`;
+    ${accessPanel}`;
 }
 
 // ── Access panel ─────────────────────────────────────────────────────────────
@@ -196,23 +193,25 @@ function renderAccessPanel() {
     </div>`;
 }
 
-// ── Clients panel (overlay) ───────────────────────────────────────────────────
+// ── Clients list (full-screen view) ──────────────────────────────────────────
 
-function renderClientsPanel() {
-  const q      = state.clientsSearch.trim().toLowerCase();
-  const all    = Object.entries(state.clients).sort((a, b) => a[1].name.localeCompare(b[1].name));
-  const sorted = q ? all.filter(([, c]) => c.name.toLowerCase().includes(q)) : all;
+function renderClientsList() {
+  const addModal  = state.showAddClientModal  ? renderAddClientModal()  : "";
+  const editModal = state.showEditClientModal ? renderEditClientModal() : "";
+  const q         = state.clientsSearch.trim().toLowerCase();
+  const all       = Object.entries(state.clients).sort((a, b) => a[1].name.localeCompare(b[1].name));
+  const sorted    = q ? all.filter(([, c]) => c.name.toLowerCase().includes(q)) : all;
 
   const rows = all.length === 0
-    ? `<div class="empty-panel">${t.clientsEmpty}</div>`
+    ? `<div class="empty">${t.clientsEmpty}</div>`
     : sorted.length === 0
-      ? `<div class="empty-panel">${t.clientsNoResults}</div>`
+      ? `<div class="empty">${t.clientsNoResults}</div>`
       : sorted.map(([k, c]) => {
           const sexEmoji = c.sex === "male" ? "♂" : c.sex === "female" ? "♀" : "";
           const age      = calcAge(c.birthDate);
           const meta     = [sexEmoji, age !== null ? `${age} ${t.ageUnit}` : ""].filter(Boolean).join(" · ");
           return `
-          <div class="panel-client-row">
+          <div class="panel-client-row" data-action="go-session" data-client="${k}">
             <div class="avatar">${esc(getInitials(c.name))}</div>
             <div class="panel-client-info">
               <span class="panel-client-name">${esc(c.name)}</span>
@@ -226,20 +225,19 @@ function renderClientsPanel() {
         }).join("");
 
   return `
-    <div class="panel-bg" data-action="close-clients-panel">
-      <div class="panel" id="clientsPanel">
-        <div class="panel-header">
-          <span class="panel-title">${t.clientsPanelTitle}</span>
-          <button class="btn-sm btn-green" data-action="open-add-client">${t.clientsAddBtn}</button>
-        </div>
-        <div class="panel-search">
-          <input class="search-input" id="clientsSearch" type="search"
-            placeholder="${t.clientsSearchPh}" value="${esc(state.clientsSearch)}" autocomplete="off">
-        </div>
-        <div class="panel-body">${rows}</div>
+    ${header(
+      `<button class="btn-back" data-action="go-home">${t.backHome}</button>`,
+      t.clientsPanelTitle,
+      `<button class="btn-sm btn-green" data-action="open-add-client">${t.clientsAddBtn}</button>`
+    )}
+    <div class="content">
+      <div class="panel-search">
+        <input class="search-input" id="clientsSearch" type="search"
+          placeholder="${t.clientsSearchPh}" value="${esc(state.clientsSearch)}" autocomplete="off">
       </div>
-    </div>`;
-}
+      ${rows}
+    </div>
+    ${addModal}${editModal}`;
 
 function renderAddClientModal() {
   return `
@@ -456,12 +454,13 @@ function renderSession() {
   const clientKey      = state.selectedClientKey;
   const c              = state.clients[clientKey];
   const fromLeaderboard = state.sessionOrigin === "leaderboard";
-  const addExModal     = state.showAddExModal ? renderAddExModal() : "";
+  const fromClients     = state.sessionOrigin === "clients-list";
+  const addExModal      = state.showAddExModal ? renderAddExModal() : "";
 
-  const backAction = fromLeaderboard ? "go-leaderboard" : "go-home";
+  const backAction = fromLeaderboard ? "go-leaderboard" : fromClients ? "go-clients" : "go-home";
   const backLabel  = fromLeaderboard
     ? `‹ ${esc(allExNames().find(n => safeKey(n) === state.selectedExKey) ?? t.backHome)}`
-    : t.backHome;
+    : fromClients ? `‹ ${t.clientsPanelTitle}` : t.backHome;
 
   let cards;
   if (fromLeaderboard) {
@@ -911,6 +910,7 @@ export function render() {
   } else {
     switch (state.view) {
       case "home":                html = renderHome();               break;
+      case "clients-list":        html = renderClientsList();        break;
       case "weights-list":        html = renderWeightsList();        break;
       case "weights-leaderboard": html = renderWeightsLeaderboard(); break;
       case "session":             html = renderSession();            break;
