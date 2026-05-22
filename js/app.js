@@ -213,6 +213,7 @@ function handleClick(e) {
 
     case "go-challenge":
       state.selectedChallengeKey = el.dataset.key;
+      state.challengeSearch      = "";
       state.view                 = "challenge-detail";
       render();
       break;
@@ -434,6 +435,13 @@ function handleInput(e) {
     state.leaderboardSearch = e.target.value;
     render();
     const el = document.getElementById("lbSearch");
+    if (el) { el.focus(); el.setSelectionRange(pos, pos); }
+  }
+  if (e.target.id === "challengeSearch") {
+    const pos = e.target.selectionStart;
+    state.challengeSearch = e.target.value;
+    render();
+    const el = document.getElementById("challengeSearch");
     if (el) { el.focus(); el.setSelectionRange(pos, pos); }
   }
 }

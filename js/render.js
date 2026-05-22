@@ -777,13 +777,21 @@ function renderChallengeDetail() {
     : 0;
 
   // For time metric: lower = better (ascending); others: higher = better (descending)
+  const q = state.challengeSearch.trim().toLowerCase();
   const clientsSorted = Object.entries(state.clients)
     .map(([ck, c]) => ({ clientKey: ck, name: c.name, sex: c.sex ?? null, birthDate: c.birthDate ?? null, entry: results[ck] ?? null }))
+    .filter(item => !q || item.name.toLowerCase().includes(q))
     .sort((a, b) => {
       if (!a.entry && !b.entry) return a.name.localeCompare(b.name);
       if (!a.entry) return 1;
       if (!b.entry) return -1;
-      return isTime ? a.entry.value - b.entry.value : b.entry.value - a.entry.value;
+      const valueDiff = isTime ? a.entry.value - b.entry.value : b.entry.value - a.entry.value;
+      if (valueDiff !== 0) return valueDiff;
+      // Desempate 1: mayor edad
+      const ageDiff = (calcAge(b.birthDate) ?? -1) - (calcAge(a.birthDate) ?? -1);
+      if (ageDiff !== 0) return ageDiff;
+      // Desempate 2: quien registró antes el resultado
+      return (a.entry.ts ?? Infinity) - (b.entry.ts ?? Infinity);
     });
 
   const resultModal = state.showChallengeResult
@@ -844,7 +852,12 @@ function renderChallengeDetail() {
         ${dateInfo}
         ${finishBtn}
       </div>
-      ${started ? `<div class="section-label">${t.ranking}</div>${rows}` : ""}
+      ${started ? `
+      <div class="panel-search">
+        <input class="search-input" id="challengeSearch" type="search"
+          placeholder="${t.lbSearchPh}" value="${esc(state.challengeSearch)}" autocomplete="off">
+      </div>
+      <div class="section-label">${t.ranking}</div>${rows}` : ""}
     </div>
     ${resultModal}`;
 }
