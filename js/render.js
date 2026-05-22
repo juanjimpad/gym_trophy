@@ -501,9 +501,10 @@ function exCard(exName, c, isCustom) {
       </div>`;
   }
 
+  const nameColor = isCustom ? "#7B5EA7" : "#1c1c1e";
   return `
     <div class="ex-card">
-      <button class="${cls}" data-action="go-exercise-history" data-exk="${k}">${t.exHistoryOf} ${esc(exName)} ›</button>
+      <span class="ex-name-label" style="color:${nameColor}">${esc(exName)}</span>
       ${topRow}
       <div class="ctrl-row">
         <span class="ctrl-label">${t.repsCtrlLabel}</span>
@@ -519,6 +520,9 @@ function exCard(exName, c, isCustom) {
           data-exk="${k}" data-field="sets" inputmode="numeric">
         <button class="ctrl-btn" data-action="adj" data-exk="${k}" data-field="sets" data-delta="1">+</button>
       </div>
+      <button class="btn-ex-history" data-action="go-exercise-history" data-exk="${k}">
+        ${t.exHistoryOf} ${esc(exName)}
+      </button>
     </div>`;
 }
 

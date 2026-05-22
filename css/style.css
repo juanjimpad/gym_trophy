@@ -322,16 +322,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 /* ── Session: exercise cards ───────────────────────────────────────────────── */
 .ex-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 14px; padding: 18px 16px 14px; margin-bottom: 8px; }
 
-.ex-name-btn {
-  font-size: 15px; font-weight: 600; color: #185FA5; margin-bottom: 14px;
-  background: none; border: none; cursor: pointer; font-family: inherit; text-align: left;
-  padding: 0; text-decoration: underline; text-decoration-color: #b0c8e8; display: block;
+.ex-name-label {
+  display: block; font-size: 15px; font-weight: 600; margin-bottom: 14px;
 }
-.ex-name-custom {
-  font-size: 15px; font-weight: 600; color: #7B5EA7; margin-bottom: 14px;
-  background: none; border: none; cursor: pointer; font-family: inherit; text-align: left;
-  padding: 0; text-decoration: underline; text-decoration-color: #c8b0e8; display: block;
+.btn-ex-history {
+  width: 100%; margin-top: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid #1D9E75; border-radius: 10px;
+  background: transparent; color: #1D9E75;
+  font-size: 13px; font-weight: 600; font-family: inherit;
+  cursor: pointer; text-align: center;
 }
+.btn-ex-history:active { background: #e8f8f3; }
 
 .ctrl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .ctrl-label { font-size: 13px; color: #8e8e93; width: 56px; flex-shrink: 0; }
