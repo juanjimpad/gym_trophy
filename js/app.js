@@ -120,6 +120,19 @@ function handleClick(e) {
       break;
     }
 
+    case "login-google": {
+      if (!checkOnline()) break;
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(() => { state.loginError = null; })
+        .catch(err => {
+          if (err.code === "auth/popup-closed-by-user") return;
+          state.loginError = t.loginGoogleFailed;
+          render();
+        });
+      break;
+    }
+
     case "logout":
       if (!confirm(t.logoutConfirm)) break;
       auth.signOut();

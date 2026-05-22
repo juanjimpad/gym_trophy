@@ -20,9 +20,12 @@ export const en = {
   loginPasswordPh:     "Password",
   loginBtn:            "Sign in",
   loginSigningIn:      "Signing in…",
+  loginGoogleBtn:      "Continue with Google",
+  loginOrDivider:      "or",
   loginRequired:       "Please enter your email and password.",
   loginBadCredentials: "Incorrect email or password.",
   loginFailed:         "Login error. Please try again.",
+  loginGoogleFailed:   "Could not sign in with Google. Please try again.",
   logoutConfirm:       "Sign out?",
 
   // ── Info panel ───────────────────────────────────────────────────────────────
