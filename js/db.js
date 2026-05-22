@@ -46,7 +46,6 @@ export function adj(clientKey, exKey, field, delta) {
     const ex   = state.clients[clientKey].exercises[exKey];
     const step = field === "weight" ? 2.5 : 1;
     ex[field]  = Math.max(0, parseFloat(((ex[field] || 0) + delta * step).toFixed(1)));
-    console.log("[adj] writing", `users/${uid()}/clients/${clientKey}/exercises/${exKey}`, ex);
     return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex);
   } catch (e) {
     console.error("[adj] error:", e, { clientKey, exKey, field });

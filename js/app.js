@@ -6,7 +6,7 @@ import { setDb, adj, setField, setBand, saveSession,
          addClient, updateClientProfile, deleteClient, deleteSession,
          addCustomExercise, addChallenge, finishChallenge, deleteChallenge,
          saveChallengeResult, migrateIfNeeded } from "./db.js";
-import { render, renderLogin, showToast, showSaving, showSaveError } from "./render.js";
+import { render, showToast, showSaving, showSaveError } from "./render.js";
 import { t } from "./i18n.js";
 
 // ── Connectivity ──────────────────────────────────────────────────────────────
@@ -158,10 +158,6 @@ function handleClick(e) {
     case "open-access-panel":
       state.showAccessPanel = true;
       render();
-      break;
-
-    case "close-access-panel":
-      if (e.target === el) { state.showAccessPanel = false; render(); }
       break;
 
     // ── Navigation ──────────────────────────────────────────────────────────
@@ -410,27 +406,18 @@ function handleClick(e) {
 }
 
 function handleInput(e) {
-  if (e.target.id === "clientsSearch") {
-    const pos = e.target.selectionStart;
-    state.clientsSearch = e.target.value;
-    render();
-    const el = document.getElementById("clientsSearch");
-    if (el) { el.focus(); el.setSelectionRange(pos, pos); }
-  }
-  if (e.target.id === "lbSearch") {
-    const pos = e.target.selectionStart;
-    state.leaderboardSearch = e.target.value;
-    render();
-    const el = document.getElementById("lbSearch");
-    if (el) { el.focus(); el.setSelectionRange(pos, pos); }
-  }
-  if (e.target.id === "challengeSearch") {
-    const pos = e.target.selectionStart;
-    state.challengeSearch = e.target.value;
-    render();
-    const el = document.getElementById("challengeSearch");
-    if (el) { el.focus(); el.setSelectionRange(pos, pos); }
-  }
+  const searchMap = {
+    clientsSearch:   "clientsSearch",
+    lbSearch:        "leaderboardSearch",
+    challengeSearch: "challengeSearch",
+  };
+  const stateKey = searchMap[e.target.id];
+  if (!stateKey) return;
+  const pos = e.target.selectionStart;
+  state[stateKey] = e.target.value;
+  render();
+  const el = document.getElementById(e.target.id);
+  if (el) { el.focus(); el.setSelectionRange(pos, pos); }
 }
 
 function handleChange(e) {
@@ -494,7 +481,6 @@ function closeAllModals() {
 function handleModalClose(action) {
   switch (action) {
     case "close-access-panel":    state.showAccessPanel       = false; break;
-    case "close-clients-panel":   state.clientsSearch = ""; break;
     case "close-add-client":      state.showAddClientModal    = false; break;
     case "close-edit-client":     state.showEditClientModal   = false; break;
     case "close-add-ex":          state.showAddExModal        = false; break;

@@ -174,16 +174,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   padding: 8px 16px;
 }
 
-.status-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border-2);
-  flex-shrink: 0;
-}
-.status-dot.online { background: #1D9E75; }
-
 .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .btn-logout   { color: var(--text-2); font-size: 16px; }
 .header-user  { font-size: 12px; color: var(--text-2); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -204,14 +194,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   flex-shrink: 0;
 }
 .btn-icon:active { opacity: 0.6; }
-.clients-count {
-  font-size: 13px;
-  font-weight: 600;
-  background: var(--surface-2);
-  border-radius: 20px;
-  padding: 1px 7px;
-}
-
 .btn-sm {
   padding: 7px 12px;
   border-radius: 8px;
@@ -282,12 +264,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .card-challenges { border-color: #f0c040; background: linear-gradient(135deg, #fffbea 0%, #fff9e0 100%); }
 .card-weights    { border-color: #5DCAA5; background: linear-gradient(135deg, #f0fdf8 0%, #e6f9f2 100%); }
 .card-clients    { border-color: #378ADD; background: linear-gradient(135deg, #eef4ff 0%, #e4eeff 100%); }
-.card-access     { border-color: #c0aaee; background: linear-gradient(135deg, #f8f0ff 0%, #f0e8ff 100%); }
 
 [data-theme="dark"] .card-challenges { border-color: #c0a000; background: linear-gradient(135deg, #2a2610 0%, #1e1a08 100%); }
 [data-theme="dark"] .card-weights    { border-color: #1D9E75; background: linear-gradient(135deg, #0d2018 0%, #0a1a10 100%); }
 [data-theme="dark"] .card-clients    { border-color: #378ADD; background: linear-gradient(135deg, #0d1428 0%, #0a1020 100%); }
-[data-theme="dark"] .card-access     { border-color: #a080dd; background: linear-gradient(135deg, #1a0a28 0%, #120820 100%); }
 
 .category-icon { font-size: 38px; flex-shrink: 0; line-height: 1; }
 .category-body { flex: 1; min-width: 0; }
@@ -545,9 +525,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 }
 .btn-finish-challenge:active { background: #e74c3c; color: #fff; }
 
-.metric-row { display: flex; gap: 20px; margin-bottom: 14px; padding: 4px 0; }
-.metric-label { font-size: 15px; color: var(--text); display: flex; align-items: center; gap: 6px; cursor: pointer; }
-
 /* ── Clients panel ─────────────────────────────────────────────────────────── */
 .panel-bg {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -606,11 +583,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .panel-client-name    { font-size: 16px; font-weight: 500; color: var(--text); }
 .panel-client-meta    { font-size: 12px; color: var(--text-2); }
 .panel-client-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.empty-panel { text-align: center; padding: 30px 20px; color: var(--text-2); font-size: 15px; line-height: 1.6; }
-
 .access-hint         { font-size: 14px; color: var(--text-2); margin-bottom: 12px; line-height: 1.5; }
-.access-success      { font-size: 14px; color: #0f6e56; background: #e8f8f2; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; text-align: center; font-weight: 500; }
-[data-theme="dark"] .access-success { background: #0d2018; }
 .access-section-title { font-size: 13px; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 10px; }
 .access-divider      { border: none; border-top: 1px solid var(--border-light); margin: 20px 0; }
 .btn-contact {

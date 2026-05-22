@@ -76,7 +76,7 @@ function header(left, center, right = "") {
 
 // ── Login ─────────────────────────────────────────────────────────────────────
 
-export function renderLogin() {
+function renderLogin() {
   if (!state.isOnline) {
     return `
       <div class="login-screen">
@@ -501,8 +501,6 @@ function exCard(exName, c, isCustom) {
   const w   = ex.weight ?? 0;
   const r   = ex.reps   ?? 10;
   const s   = ex.sets   ?? 3;
-  const cls = isCustom ? "ex-name-custom" : "ex-name-btn";
-
   let topRow;
   if (k === CHIN_KEY) {
     const cur     = ex.band ?? null;

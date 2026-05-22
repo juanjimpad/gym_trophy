@@ -87,7 +87,6 @@ export const es = {
   noClientsLeaderboard:   "Aún no hay clientes.<br>Añade clientes desde ⚙ en la pantalla principal.",
   sexMaleGroup:           "👨 Top hombres",
   sexFemaleGroup:         "👩 Top mujeres",
-  sexUnknownGroup:        "👤 Sin categoría",
   restGroup:              "Resto",
   noMark:                 "📋 Sin marca",
   ageUnit:                "años",
@@ -112,7 +111,6 @@ export const es = {
 
   // ── Challenges ───────────────────────────────────────────────────────────────
   challengesTitle:          "Retos",
-  challengesDesc:           "Desafíos grupales · quién hace más",
   addChallengeBtn:          "+ Reto",
   challengesEmpty:          "Sin retos todavía.<br>Pulsa \"+ Reto\" para crear el primero.",
   noResultsYet:             "Sin resultados aún",
