@@ -19,6 +19,7 @@ Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para ent
 - **Soporte multiidioma (ES / EN)** — La interfaz está disponible en español e inglés.
 - **PWA con soporte offline** — Service Worker que cachea los recursos estáticos. La app funciona sin conexión una vez cargada.
 - **Sincronización en la nube** — Datos guardados en Firebase Realtime Database. Cualquier cambio se refleja instantáneamente en todos los dispositivos.
+- **Dark mode** — Selector ☀️🌙✨ en el pie de página para elegir tema claro, oscuro o automático (sigue la preferencia del sistema). La elección se guarda entre sesiones.
 - **Acceso seguro** — Login con correo/contraseña o con cuenta de Google mediante Firebase Authentication. Cada usuario tiene sus datos completamente aislados.
 - **Gestión de clientes** — Añadir, editar y eliminar clientes con nombre, sexo y fecha de nacimiento.
 - **Ejercicios personalizados** — Añade ejercicios propios que se aplican automáticamente a todos los clientes.
@@ -56,6 +57,7 @@ gym_trophy/
     │   ├── es.js           # Cadenas en español
     │   └── en.js           # Cadenas en inglés
     ├── state.js            # Estado global mutable
+    ├── theme.js            # Lógica de tema (claro/oscuro/auto) y persistencia
     ├── utils.js            # Funciones puras: rankings, fechas, edad, agrupación
     ├── db.js               # Operaciones de escritura a Firebase
     └── render.js           # Todas las vistas (renderizado sin framework)
