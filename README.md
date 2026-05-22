@@ -12,20 +12,39 @@ Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para ent
 
 ## Características
 
-- **Pesos · Series · Reps** — Ranking por ejercicio con la mejor marca histórica de cada cliente (👑). Leaderboard con medallas separado por sexo.
-- **Retos grupales** — Desafíos de repeticiones, calorías o tiempo con fecha de inicio y fin. Ranking en tiempo real separado por sexo. El reto queda inactivo pasada la fecha de fin.
-- **Historial de sesiones** — Consulta el historial completo de sesiones por ejercicio y cliente. Incluye gráfica de evolución del peso y opción de eliminar sesiones individuales.
-- **Buscador de clientes** — Filtrado en tiempo real sobre la lista de clientes mientras escribes.
-- **Soporte multiidioma (ES / EN)** — La interfaz está disponible en español e inglés.
-- **PWA con soporte offline** — Service Worker que cachea los recursos estáticos. La app funciona sin conexión una vez cargada.
-- **Sincronización en la nube** — Datos guardados en Firebase Realtime Database. Cualquier cambio se refleja instantáneamente en todos los dispositivos.
-- **Dark mode** — Selector ☀️🌙✨ en el pie de página para elegir tema claro, oscuro o automático (sigue la preferencia del sistema). La elección se guarda entre sesiones.
-- **Acceso seguro** — Login con correo/contraseña o con cuenta de Google mediante Firebase Authentication. Cada usuario tiene sus datos completamente aislados.
-- **Gestión de clientes** — Añadir, editar y eliminar clientes con nombre, sexo y fecha de nacimiento.
-- **Ejercicios personalizados** — Añade ejercicios propios que se aplican automáticamente a todos los clientes.
-- **Ganadores por sexo** — Rankings diferenciados para hombres y mujeres en ejercicios y retos.
-- **Edad informativa** — La edad de cada cliente se calcula automáticamente a partir de su fecha de nacimiento y se muestra en los rankings.
-- **Detección de conexión** — Banner de aviso cuando se pierde la conexión. Indicador de guardado en el encabezado.
+### Pesos · Series · Reps
+- Ranking por ejercicio con la mejor marca histórica de cada cliente (👑)
+- Leaderboard con medallas (🥇🥈🥉) separado en **Top 3 hombres / Top 3 mujeres / Resto / Sin marca**
+- Desempate por edad (mayor edad primero) y por fecha de registro del peso
+- Buscador en tiempo real sobre el ranking para ir directo al cliente
+- Soporte para ejercicios de **peso corporal** (weight = 0): se muestran como "Peso corporal" en el ranking
+- Historial de sesiones por ejercicio con gráfica de evolución del peso
+
+### Retos grupales
+- Desafíos de repeticiones, calorías o tiempo con fecha de inicio y fin
+- Ranking en tiempo real con la misma lógica de agrupación y desempate que los pesos
+- Buscador de clientes en el ranking del reto
+- Badge de estado: Pendiente · Activo · Finalizado
+- El reto queda inactivo pasada la fecha de fin
+
+### Clientes
+- Vista a pantalla completa con búsqueda en tiempo real
+- Cada cliente muestra sexo (♂/♀) y edad calculada automáticamente
+- Añadir, editar y eliminar clientes con nombre, sexo y fecha de nacimiento
+- Acceso directo a la sesión de cualquier cliente desde la lista
+
+### Sesiones
+- Registro de peso, series y repeticiones por ejercicio
+- Navegación inteligente al guardar: vuelve al ranking del ejercicio, a la lista de clientes o al inicio según el origen de la sesión
+- Historial por ejercicio con opción de eliminar sesiones individuales
+
+### General
+- **Soporte multiidioma (ES / EN)** — interfaz automática según el idioma del navegador
+- **PWA con soporte offline** — Service Worker que cachea los recursos estáticos tras la primera carga
+- **Sincronización en la nube** — Firebase Realtime Database; los cambios se reflejan en tiempo real en todos los dispositivos
+- **Dark mode** — Selector ☀️🌙✨ en el pie de página; guarda la preferencia entre sesiones
+- **Acceso seguro** — Login con correo/contraseña o cuenta de Google. Cada usuario tiene sus datos completamente aislados
+- **Ejercicios personalizados** — Añade ejercicios propios que se aplican automáticamente a todos los clientes
 
 ---
 
@@ -45,6 +64,7 @@ Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para ent
 gym_trophy/
 ├── index.html
 ├── sw.js               # Service Worker — caché offline y versionado de assets
+├── favicon.ico
 ├── css/
 │   └── style.css
 └── js/
@@ -52,7 +72,7 @@ gym_trophy/
     ├── config.js           # Ejercicios base, bandas, duraciones y constantes
     ├── firebase.js         # Credenciales Firebase (gitignoreado)
     ├── firebase.example.js # Plantilla de credenciales para nuevos despliegues
-    ├── i18n.js             # Módulo de internacionalización (idioma activo, t())
+    ├── i18n.js             # Módulo de internacionalización
     ├── locales/
     │   ├── es.js           # Cadenas en español
     │   └── en.js           # Cadenas en inglés
@@ -66,6 +86,8 @@ gym_trophy/
 ---
 
 ## Diseño de la base de datos
+
+Los datos se almacenan bajo `users/{uid}/` para aislar completamente cada entrenador.
 
 ### clients
 
@@ -117,6 +139,7 @@ gym_trophy/
 | `startDate` | string `YYYY-MM-DD` · null | Fecha de inicio (opcional) |
 | `endDate` | string `YYYY-MM-DD` · null | Fecha de fin (opcional) |
 | `createdAt` | number | Timestamp de creación |
+| `finished` | boolean | `true` si el reto fue cerrado manualmente |
 
 **challenges → results** *(un resultado por cliente)*
 
@@ -134,15 +157,15 @@ gym_trophy/
   "rules": {
     "users": {
       "$uid": {
-        ".read":  "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid"
+        ".read":  "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
       }
     }
   }
 }
 ```
 
-Cada usuario solo puede leer y escribir sus propios datos.
+Cada usuario solo puede leer y escribir sus propios datos. El resto de la base de datos es completamente inaccesible.
 
 ---
 
@@ -165,14 +188,31 @@ cd gym-trophy/gym_trophy
 6. En **Authentication → Settings → Authorized domains**, añade tu dominio de GitHub Pages
 7. Si usas Google Sign-In: una vez registrados todos los usuarios, deshabilita el registro automático en **Authentication → Settings**
 
-### 3. Publica en GitHub Pages
+### 3. Configura los secrets de GitHub
+
+En **Settings → Secrets and variables → Actions** de tu repositorio, añade:
+
+| Secret | Valor |
+|---|---|
+| `FIREBASE_API_KEY` | apiKey de tu proyecto |
+| `FIREBASE_AUTH_DOMAIN` | authDomain |
+| `FIREBASE_DATABASE_URL` | databaseURL |
+| `FIREBASE_PROJECT_ID` | projectId |
+| `FIREBASE_STORAGE_BUCKET` | storageBucket |
+| `FIREBASE_MESSAGING_SENDER_ID` | messagingSenderId |
+| `FIREBASE_APP_ID` | appId |
+
+### 4. Publica en GitHub Pages
 
 En los ajustes de tu repositorio → **Pages** → Branch: `main`, Folder: `/gym_trophy`
+
+Cada push a `main` despliega automáticamente vía GitHub Actions.
 
 > **Desarrollo local:** Los módulos ES no funcionan con `file://`. Usa un servidor local:
 > ```bash
 > npx serve .
 > ```
+> El Service Worker desactiva la caché automáticamente en desarrollo local.
 
 ---
 
