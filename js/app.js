@@ -1,5 +1,6 @@
 import { FIREBASE_CONFIG }            from "./firebase.js";
 import { state }                      from "./state.js";
+import { initTheme, setTheme }        from "./theme.js";
 import { mergeClient, isEditing }     from "./utils.js";
 import { setDb, adj, setField, setBand, saveSession,
          addClient, updateClientProfile, deleteClient, deleteSession,
@@ -18,6 +19,10 @@ function checkOnline() {
   }
   return online;
 }
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+
+initTheme();
 
 // ── Firebase init ─────────────────────────────────────────────────────────────
 
@@ -132,6 +137,11 @@ function handleClick(e) {
         });
       break;
     }
+
+    case "set-theme":
+      setTheme(el.dataset.theme);
+      render();
+      break;
 
     case "logout":
       if (!confirm(t.logoutConfirm)) break;
