@@ -81,6 +81,12 @@ function startDataListeners(uid) {
   listenerRefs.push(challengesRef);
 }
 
+function nav(view) {
+  state.view = view;
+  window.scrollTo(0, 0);
+  render();
+}
+
 // ── Event delegation ──────────────────────────────────────────────────────────
 
 document.getElementById("app").addEventListener("click", handleClick);
@@ -161,61 +167,45 @@ function handleClick(e) {
     // ── Navigation ──────────────────────────────────────────────────────────
     case "go-home":
       closeAllModals();
-      state.view = "home";
-      render();
+      nav("home");
       break;
 
     case "go-weights":
-      state.view = "weights-list";
-      render();
-      break;
-
     case "go-weights-list":
-      state.view = "weights-list";
-      render();
+      nav("weights-list");
       break;
 
     case "go-challenges":
-      state.view = "challenges-list";
-      render();
-      break;
-
     case "go-challenges-list":
-      state.view = "challenges-list";
-      render();
+      nav("challenges-list");
       break;
 
     case "go-leaderboard":
-      state.view = "weights-leaderboard";
       if (el.dataset.exk) { state.selectedExKey = el.dataset.exk; state.leaderboardSearch = ""; }
-      render();
+      nav("weights-leaderboard");
       break;
 
     case "go-session": {
       const clientKey = el.dataset.client;
       state.selectedClientKey = clientKey;
       state.sessionOrigin     = state.view === "weights-leaderboard" ? "leaderboard" : "clients-panel";
-      state.view              = "session";
-      render();
+      nav("session");
       break;
     }
 
     case "go-exercise-history":
       state.selectedExKey = el.dataset.exk;
-      state.view          = "exercise-history";
-      render();
+      nav("exercise-history");
       break;
 
     case "go-back-session":
-      state.view = "session";
-      render();
+      nav("session");
       break;
 
     case "go-challenge":
       state.selectedChallengeKey = el.dataset.key;
       state.challengeSearch      = "";
-      state.view                 = "challenge-detail";
-      render();
+      nav("challenge-detail");
       break;
 
     // ── Clients panel ────────────────────────────────────────────────────────
@@ -327,8 +317,7 @@ function handleClick(e) {
       saveSession(clientKey, onlyEx)
         .then(() => showToast(t.sessionSaved))
         .catch(err => { console.error("[saveSession] save failed:", err); checkOnline(); showSaveError(t.sessionSaveError); });
-      state.view = state.sessionOrigin === "leaderboard" ? "weights-leaderboard" : "home";
-      render();
+      nav(state.sessionOrigin === "leaderboard" ? "weights-leaderboard" : "home");
       break;
     }
 
@@ -383,8 +372,7 @@ function handleClick(e) {
       finishChallenge(key)
         .then(() => showToast(t.finishChallengeDone))
         .catch(() => showSaveError());
-      state.view = "challenges-list";
-      render();
+      nav("challenges-list");
       break;
     }
 
@@ -395,8 +383,7 @@ function handleClick(e) {
       deleteChallenge(key)
         .then(() => showToast(t.challengeDeleted))
         .catch(() => showSaveError(t.challengeDeleteError));
-      state.view = "challenges-list";
-      render();
+      nav("challenges-list");
       break;
     }
 
