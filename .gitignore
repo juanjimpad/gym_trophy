@@ -6,6 +6,9 @@ js/firebase.js
 
 # ── Node / npm ───────────────────────────────────────────────────────────────
 node_modules/
+package.json
+package-lock.json
+gen_favicon.mjs
 .npm
 *.tgz
 .yarn-integrity
