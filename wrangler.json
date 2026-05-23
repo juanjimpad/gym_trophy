@@ -1,10 +1,6 @@
 {
   "name": "gym-trophy",
-  "compatibility_date": "2026-05-23",
   "pages_build_output_dir": ".",
-  "assets": {
-    "directory": "."
-  },
   "observability": {
     "enabled": false,
     "head_sampling_rate": 1,
