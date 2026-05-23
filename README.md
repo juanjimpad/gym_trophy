@@ -6,7 +6,7 @@
 
 Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para entrenadores personales que quieren llevar el control de pesos, series, repeticiones y retos grupales de sus clientes en tiempo real.
 
-**Demo:** [juanjimpad.github.io/gym_trophy](https://juanjimpad.github.io/gym_trophy/)
+**Demo:** [gym-trophy.com](https://gym-trophy.com)
 
 ---
 
@@ -54,7 +54,7 @@ Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para ent
 - [Firebase Realtime Database](https://firebase.google.com/products/realtime-database) — persistencia y sincronización en tiempo real
 - [Firebase Authentication](https://firebase.google.com/products/auth) — acceso seguro con email/contraseña y Google Sign-In
 - [Chart.js](https://www.chartjs.org/) — gráficas de evolución por ejercicio
-- Alojado en [GitHub Pages](https://pages.github.com/) vía GitHub Actions
+- Alojado en [Cloudflare Pages](https://pages.cloudflare.com/) con `build.sh` que inyecta las credenciales desde env vars
 
 ---
 
@@ -63,24 +63,27 @@ Aplicación web para la gestión de entrenamientos de fuerza. Diseñada para ent
 ```
 gym_trophy/
 ├── index.html
-├── sw.js               # Service Worker — caché offline y versionado de assets
+├── sw.js                  # Service Worker — caché offline y versionado de assets
 ├── favicon.ico
+├── build.sh               # Genera js/firebase.js desde env vars (Cloudflare Pages)
+├── _worker.js             # Worker de Cloudflare Pages — sirve assets estáticos
+├── wrangler.json          # Configuración de Cloudflare Pages
+├── .dev.vars.example      # Plantilla de variables de entorno para desarrollo local
 ├── css/
 │   └── style.css
 └── js/
-    ├── app.js              # Punto de entrada, Firebase init, event delegation
-    ├── config.js           # Ejercicios base, bandas, duraciones y constantes
-    ├── firebase.js         # Credenciales Firebase (gitignoreado)
-    ├── firebase.example.js # Plantilla de credenciales para nuevos despliegues
-    ├── i18n.js             # Módulo de internacionalización
+    ├── app.js             # Punto de entrada, Firebase init, event delegation
+    ├── config.js          # Ejercicios base, bandas, duraciones y constantes
+    ├── firebase.js        # Credenciales Firebase (gitignoreado — generado en build)
+    ├── i18n.js            # Módulo de internacionalización
     ├── locales/
-    │   ├── es.js           # Cadenas en español
-    │   └── en.js           # Cadenas en inglés
-    ├── state.js            # Estado global mutable
-    ├── theme.js            # Lógica de tema (claro/oscuro/auto) y persistencia
-    ├── utils.js            # Funciones puras: rankings, fechas, edad, agrupación
-    ├── db.js               # Operaciones de escritura a Firebase
-    └── render.js           # Todas las vistas (renderizado sin framework)
+    │   ├── es.js          # Cadenas en español
+    │   └── en.js          # Cadenas en inglés
+    ├── state.js           # Estado global mutable
+    ├── theme.js           # Lógica de tema (claro/oscuro/auto) y persistencia
+    ├── utils.js           # Funciones puras: rankings, fechas, edad, agrupación
+    ├── db.js              # Operaciones de escritura a Firebase
+    └── render.js          # Todas las vistas (renderizado sin framework)
 ```
 
 ---
@@ -182,17 +185,16 @@ cd gym-trophy/gym_trophy
 
 1. Crea un proyecto en [Firebase Console](https://console.firebase.google.com)
 2. Activa **Realtime Database** (modo Europa) y **Authentication → Email/Password** y/o **Google**
-3. Copia `js/firebase.example.js` → `js/firebase.js` y rellena tus credenciales
-4. Aplica las reglas de seguridad del apartado anterior
-5. En **Authentication → Users**, crea los usuarios que tendrán acceso
-6. En **Authentication → Settings → Authorized domains**, añade tu dominio de GitHub Pages
-7. Si usas Google Sign-In: una vez registrados todos los usuarios, deshabilita el registro automático en **Authentication → Settings**
+3. Aplica las reglas de seguridad del apartado anterior
+4. En **Authentication → Users**, crea los usuarios que tendrán acceso
+5. En **Authentication → Settings → Authorized domains**, añade tu dominio
+6. Si usas Google Sign-In: una vez registrados todos los usuarios, deshabilita el registro automático en **Authentication → Settings**
 
-### 3. Configura los secrets de GitHub
+### 3. Configura las variables de entorno en Cloudflare Pages
 
-En **Settings → Secrets and variables → Actions** de tu repositorio, añade:
+En **Cloudflare Pages → Settings → Environment variables**, añade:
 
-| Secret | Valor |
+| Variable | Valor |
 |---|---|
 | `FIREBASE_API_KEY` | apiKey de tu proyecto |
 | `FIREBASE_AUTH_DOMAIN` | authDomain |
@@ -202,17 +204,22 @@ En **Settings → Secrets and variables → Actions** de tu repositorio, añade:
 | `FIREBASE_MESSAGING_SENDER_ID` | messagingSenderId |
 | `FIREBASE_APP_ID` | appId |
 
-### 4. Publica en GitHub Pages
+### 4. Publica en Cloudflare Pages
 
-En los ajustes de tu repositorio → **Pages** → Branch: `main`, Folder: `/gym_trophy`
+Conecta tu repositorio en Cloudflare Pages con esta configuración:
 
-Cada push a `main` despliega automáticamente vía GitHub Actions.
+| Ajuste | Valor |
+| --- | --- |
+| Build command | `bash build.sh` |
+| Build output directory | `/gym_trophy` |
 
-> **Desarrollo local:** Los módulos ES no funcionan con `file://`. Usa un servidor local:
-> ```bash
-> npx serve .
-> ```
-> El Service Worker desactiva la caché automáticamente en desarrollo local.
+Cada push a `main` despliega automáticamente.
+
+> **Desarrollo local:** Copia `.dev.vars.example` → `.dev.vars`, rellena las credenciales y ejecuta:
+
+```bash
+wrangler pages dev .
+```
 
 ---
 
