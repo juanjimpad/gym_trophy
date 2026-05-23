@@ -66,7 +66,6 @@ gym_trophy/
 ├── sw.js                  # Service Worker — caché offline y versionado de assets
 ├── favicon.ico
 ├── build.sh               # Genera js/firebase.js desde env vars (Cloudflare Pages)
-├── _worker.js             # Worker de Cloudflare Pages — sirve assets estáticos
 ├── wrangler.json          # Configuración de Cloudflare Pages
 ├── .dev.vars.example      # Plantilla de variables de entorno para desarrollo local
 ├── css/
