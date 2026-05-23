@@ -8,6 +8,11 @@ export function setDb(ref) { db = ref; }
 const uid  = ()       => state.currentUser.uid;
 const uref = (path)   => db.ref(`users/${uid()}/${path}`);
 
+// Prefix + timestamp + random suffix to avoid millisecond-level collisions
+const uniqueKey = (prefix) => `${prefix}${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+
+const MAX_VALUES = { weight: 500, reps: 100, sets: 50 };
+
 // ── Migration (flat root → users/{uid}/) ──────────────────────────────────────
 
 const MIGRATED_KEY = "gym_trophy_migrated";
@@ -49,38 +54,47 @@ export async function migrateIfNeeded() {
 // ── Exercise adjustments ──────────────────────────────────────────────────────
 
 export function adj(clientKey, exKey, field, delta) {
-  try {
-    const ex   = state.clients[clientKey].exercises[exKey];
-    const step = field === "weight" ? 2.5 : 1;
-    ex[field]  = Math.max(0, parseFloat(((ex[field] || 0) + delta * step).toFixed(1)));
-    return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex);
-  } catch (e) {
-    console.error("[adj] error:", e, { clientKey, exKey, field });
-    return Promise.reject(e);
-  }
+  const ex = state.clients[clientKey]?.exercises?.[exKey];
+  if (!ex) return Promise.resolve();
+  const step = field === "weight" ? 2.5 : 1;
+  const max  = MAX_VALUES[field] ?? 9999;
+  const prev = ex[field];
+  ex[field]  = Math.min(max, Math.max(0, parseFloat(((ex[field] || 0) + delta * step).toFixed(1))));
+  return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex)
+    .catch(e => {
+      ex[field] = prev;
+      console.error("[adj] error:", e, { clientKey, exKey, field });
+      return Promise.reject(e);
+    });
 }
 
 export function setField(clientKey, exKey, field, rawVal) {
-  try {
-    const val = parseFloat(rawVal);
-    if (isNaN(val) || val < 0) return Promise.resolve();
-    const ex = state.clients[clientKey].exercises[exKey];
-    ex[field] = val;
-    return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex);
-  } catch (e) {
-    console.error("[setField] error:", e, { clientKey, exKey, field, rawVal });
-    return Promise.reject(e);
-  }
+  const ex  = state.clients[clientKey]?.exercises?.[exKey];
+  if (!ex) return Promise.resolve();
+  const val = parseFloat(rawVal);
+  const max = MAX_VALUES[field] ?? 9999;
+  if (isNaN(val) || val < 0 || val > max) return Promise.resolve();
+  const prev = ex[field];
+  ex[field]  = val;
+  return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex)
+    .catch(e => {
+      ex[field] = prev;
+      console.error("[setField] error:", e, { clientKey, exKey, field, rawVal });
+      return Promise.reject(e);
+    });
 }
 
 export function setBand(clientKey, exKey, bandId) {
-  try {
-    state.clients[clientKey].exercises[exKey].band = bandId || null;
-    return uref(`clients/${clientKey}/exercises/${exKey}/band`).set(bandId || null);
-  } catch (e) {
-    console.error("[setBand] error:", e, { clientKey, exKey, bandId });
-    return Promise.reject(e);
-  }
+  const ex = state.clients[clientKey]?.exercises?.[exKey];
+  if (!ex) return Promise.resolve();
+  const prev = ex.band;
+  ex.band    = bandId || null;
+  return uref(`clients/${clientKey}/exercises/${exKey}/band`).set(bandId || null)
+    .catch(e => {
+      ex.band = prev;
+      console.error("[setBand] error:", e, { clientKey, exKey, bandId });
+      return Promise.reject(e);
+    });
 }
 
 // ── Session save ──────────────────────────────────────────────────────────────
@@ -121,18 +135,28 @@ export function saveSession(clientKey, onlyExKey = null) {
 
 export function addClient(name, sex = null, birthDate = null) {
   if (!name.trim()) return Promise.resolve();
-  const key       = "c_" + Date.now();
+  const key       = uniqueKey("c_");
   const exercises = {};
   allExNames().forEach(n => { exercises[safeKey(n)] = defaultEx(n); });
-  state.clients[key] = { name: name.trim(), sex: sex || null, birthDate: birthDate || null, exercises };
-  return uref("clients/" + key).set(state.clients[key]);
+  const client = { name: name.trim(), sex: sex || null, birthDate: birthDate || null, exercises };
+  state.clients[key] = client;
+  return uref("clients/" + key).set(client)
+    .catch(e => {
+      delete state.clients[key];
+      return Promise.reject(e);
+    });
 }
 
 export function updateClientProfile(key, name, sex, birthDate) {
-  if (!name.trim()) return Promise.resolve();
-  const upd = { name: name.trim(), sex: sex || null, birthDate: birthDate || null };
+  if (!name.trim() || !state.clients[key]) return Promise.resolve();
+  const upd  = { name: name.trim(), sex: sex || null, birthDate: birthDate || null };
+  const prev = { name: state.clients[key].name, sex: state.clients[key].sex, birthDate: state.clients[key].birthDate };
   Object.assign(state.clients[key], upd);
-  return uref(`clients/${key}`).update(upd);
+  return uref(`clients/${key}`).update(upd)
+    .catch(e => {
+      Object.assign(state.clients[key], prev);
+      return Promise.reject(e);
+    });
 }
 
 export function deleteClient(key) {
@@ -140,15 +164,22 @@ export function deleteClient(key) {
 }
 
 export function deleteSession(clientKey, exKey, dateKey) {
+  const saved = state.clients[clientKey]?.history?.[exKey]?.[dateKey];
   delete state.clients[clientKey]?.history?.[exKey]?.[dateKey];
-  return uref(`clients/${clientKey}/history/${exKey}/${dateKey}`).remove();
+  return uref(`clients/${clientKey}/history/${exKey}/${dateKey}`).remove()
+    .catch(e => {
+      if (saved !== undefined && state.clients[clientKey]?.history?.[exKey]) {
+        state.clients[clientKey].history[exKey][dateKey] = saved;
+      }
+      return Promise.reject(e);
+    });
 }
 
 // ── Custom exercises ──────────────────────────────────────────────────────────
 
 export function addCustomExercise(name) {
   if (!name.trim()) return Promise.resolve();
-  const key = "custom_" + Date.now();
+  const key = uniqueKey("custom_");
   const u   = uid();
   const p1  = uref("customExercises/" + key).set({ name: name.trim(), custom: true });
   const upd = {};
@@ -163,7 +194,7 @@ export function addCustomExercise(name) {
 
 export function addChallenge({ name, exerciseName, duration, metric, startDate, endDate }) {
   if (!name.trim()) return Promise.resolve();
-  const key = "ch_" + Date.now();
+  const key = uniqueKey("ch_");
   return uref("challenges/" + key).set({
     name: name.trim(), exerciseName, duration, metric,
     startDate: startDate || null,
@@ -173,12 +204,16 @@ export function addChallenge({ name, exerciseName, duration, metric, startDate, 
 }
 
 export function finishChallenge(key) {
+  if (!state.challenges[key]) return Promise.resolve();
   const today = new Date().toISOString().slice(0, 10);
-  if (state.challenges[key]) {
-    state.challenges[key].endDate  = today;
-    state.challenges[key].finished = true;
-  }
-  return uref(`challenges/${key}`).update({ endDate: today, finished: true });
+  const prev  = { endDate: state.challenges[key].endDate, finished: state.challenges[key].finished };
+  state.challenges[key].endDate  = today;
+  state.challenges[key].finished = true;
+  return uref(`challenges/${key}`).update({ endDate: today, finished: true })
+    .catch(e => {
+      Object.assign(state.challenges[key], prev);
+      return Promise.reject(e);
+    });
 }
 
 export function deleteChallenge(key) {

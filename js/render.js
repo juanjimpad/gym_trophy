@@ -306,7 +306,7 @@ function renderEditClientModal() {
         <input class="modal-input" id="editClientInput" value="${esc(name)}" autocomplete="off" maxlength="80">
         <div class="metric-selector">${sexOpts}</div>
         <label class="date-label" style="display:block;margin-bottom:6px">${t.birthDateLabel}</label>
-        <input type="date" class="modal-input" id="editClientBirthDate" value="${birthDate}">
+        <input type="date" class="modal-input" id="editClientBirthDate" value="${esc(birthDate)}">
         <div class="modal-actions">
           <button class="btn-cancel" data-action="close-edit-client">${t.cancel}</button>
           <button class="btn-confirm" data-action="confirm-edit-client">${t.save}</button>
