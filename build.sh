@@ -31,3 +31,8 @@ export const FIREBASE_CONFIG = {
 EOF
 
 echo "js/firebase.js generado correctamente"
+
+# Inject build version into service worker for cache invalidation
+BUILD_VERSION=$(git rev-parse --short HEAD 2>/dev/null || date +%s)
+sed -i "s/'BUILD_VERSION'/'${BUILD_VERSION}'/g" sw.js
+echo "sw.js versionado como ${BUILD_VERSION}"

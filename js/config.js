@@ -22,3 +22,5 @@ export const CHALLENGE_DURATIONS = [
 
 export function safeKey(n) { return n.replace(/[.#$[\]/\s"'<>]/g, "_"); }
 export const CHIN_KEY = safeKey("Chin ups");
+
+export const IS_DEV = ['localhost', '127.0.0.1', ''].includes(location.hostname);
