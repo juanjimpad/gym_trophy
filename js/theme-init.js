@@ -1,0 +1,1 @@
+(function(){var t=localStorage.getItem('gym_trophy_theme')||'auto';var d=t==='dark'||(t==='auto'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');})();

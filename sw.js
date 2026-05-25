@@ -13,14 +13,20 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (!e.request.url.startsWith(self.location.origin)) return;
-  if (IS_DEV) return; // en local nunca cachear — siempre red directa
+  if (IS_DEV) return;
+  if (e.request.method !== 'GET') return;
+
   e.respondWith(
     fetch(e.request)
       .then(res => {
-        const clone = res.clone();
-        caches.open(V).then(c => c.put(e.request, clone));
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(V).then(c => c.put(e.request, clone));
+        }
         return res;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(e.request)
+        .then(cached => cached ?? new Response('Offline', { status: 503, statusText: 'Service Unavailable' }))
+      )
   );
 });

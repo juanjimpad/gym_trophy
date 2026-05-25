@@ -8,6 +8,7 @@ import { setDb, adj, setField, setBand, saveSession,
          saveChallengeResult, migrateIfNeeded } from "./db.js";
 import { render, showToast, showSaving, showSaveError } from "./render.js";
 import { t } from "./i18n.js";
+import { IS_DEV } from "./config.js";
 
 // ── Connectivity ──────────────────────────────────────────────────────────────
 
@@ -34,12 +35,14 @@ setDb(db);
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 auth.onAuthStateChanged(async user => {
+  const wasLoggedIn = state.currentUser !== null;
   state.currentUser = user ?? null;
   if (user) {
     try { await migrateIfNeeded(); } catch (_) {}
     startDataListeners(user.uid);
   } else {
     stopDataListeners();
+    if (wasLoggedIn) showToast(t.sessionExpired);
   }
   render();
 });
@@ -310,7 +313,7 @@ function handleClick(e) {
       const onlyEx = state.sessionOrigin === "leaderboard" ? state.selectedExKey : null;
       saveSession(clientKey, onlyEx)
         .then(() => showToast(t.sessionSaved))
-        .catch(err => { console.error("[saveSession] save failed:", err); checkOnline(); showSaveError(t.sessionSaveError); });
+        .catch(err => { if (IS_DEV) console.error("[saveSession] save failed:", err); checkOnline(); showSaveError(t.sessionSaveError); });
       nav(state.sessionOrigin === "leaderboard" ? "weights-leaderboard"
         : state.sessionOrigin === "clients-list" ? "clients-list"
         : "home");
@@ -321,7 +324,7 @@ function handleClick(e) {
       flushFocusedInput();
       adj(state.selectedClientKey, el.dataset.exk, el.dataset.field, parseInt(el.dataset.delta))
         .then(() => showSaving())
-        .catch(err => { console.error("[adj] save failed:", err); checkOnline(); showSaveError(); });
+        .catch(err => { if (IS_DEV) console.error("[adj] save failed:", err); checkOnline(); showSaveError(); });
       render();
       break;
     }
@@ -329,7 +332,7 @@ function handleClick(e) {
     case "set-band":
       setBand(state.selectedClientKey, el.dataset.exk, el.dataset.band)
         .then(() => showSaving())
-        .catch(err => { console.error("[setBand] save failed:", err); checkOnline(); showSaveError(); });
+        .catch(err => { if (IS_DEV) console.error("[setBand] save failed:", err); checkOnline(); showSaveError(); });
       render();
       break;
 
@@ -427,7 +430,7 @@ function handleChange(e) {
     if (exk && field && state.selectedClientKey) {
       setField(state.selectedClientKey, exk, field, e.target.value)
         ?.then(() => showSaving())
-        ?.catch(err => { console.error("[setField] save failed:", err); showSaveError(); });
+        ?.catch(err => { if (IS_DEV) console.error("[setField] save failed:", err); showSaveError(); });
     }
   }
 }
@@ -489,3 +492,7 @@ function handleModalClose(action) {
   }
   render();
 }
+
+// ── Service Worker ────────────────────────────────────────────────────────────
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
