@@ -1,0 +1,7 @@
+# index.html y sw.js nunca se cachean: garantiza que el navegador descargue
+# siempre la versión más reciente y que el Service Worker se actualice al instante.
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
