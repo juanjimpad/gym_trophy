@@ -56,10 +56,12 @@ export async function migrateIfNeeded() {
 export function adj(clientKey, exKey, field, delta) {
   const ex = state.clients[clientKey]?.exercises?.[exKey];
   if (!ex) return Promise.resolve();
-  const step = field === "weight" ? 2.5 : 1;
-  const max  = MAX_VALUES[field] ?? 9999;
-  const prev = ex[field];
-  ex[field]  = Math.min(max, Math.max(0, parseFloat(((ex[field] || 0) + delta * step).toFixed(1))));
+  const step   = field === "weight" ? 2.5 : 1;
+  const max    = MAX_VALUES[field] ?? 9999;
+  const prev   = ex[field];
+  const newVal = Math.min(max, Math.max(0, parseFloat(((ex[field] || 0) + delta * step).toFixed(1))));
+  if (newVal === prev) return Promise.resolve();
+  ex[field]  = newVal;
   return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex)
     .catch(e => {
       ex[field] = prev;
@@ -74,6 +76,7 @@ export function setField(clientKey, exKey, field, rawVal) {
   const val = parseFloat(rawVal);
   const max = MAX_VALUES[field] ?? 9999;
   if (isNaN(val) || val < 0 || val > max) return Promise.resolve();
+  if (val === ex[field]) return Promise.resolve();
   const prev = ex[field];
   ex[field]  = val;
   return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex)
@@ -87,9 +90,11 @@ export function setField(clientKey, exKey, field, rawVal) {
 export function setBand(clientKey, exKey, bandId) {
   const ex = state.clients[clientKey]?.exercises?.[exKey];
   if (!ex) return Promise.resolve();
-  const prev = ex.band;
-  ex.band    = bandId || null;
-  return uref(`clients/${clientKey}/exercises/${exKey}/band`).set(bandId || null)
+  const prev    = ex.band;
+  const newBand = bandId || null;
+  if (newBand === prev) return Promise.resolve();
+  ex.band = newBand;
+  return uref(`clients/${clientKey}/exercises/${exKey}/band`).set(newBand)
     .catch(e => {
       ex.band = prev;
       if (IS_DEV) console.error("[setBand] error:", e, { clientKey, exKey, bandId });

@@ -85,6 +85,8 @@ function startDataListeners(uid) {
 }
 
 function nav(view) {
+  if (state.chartTimer) { clearTimeout(state.chartTimer); state.chartTimer = null; }
+  if (state.chartInstance) { state.chartInstance.destroy(); state.chartInstance = null; }
   state.view = view;
   window.scrollTo(0, 0);
   render();
@@ -408,6 +410,7 @@ function handleClick(e) {
   }
 }
 
+let searchTimer = null;
 function handleInput(e) {
   const searchMap = {
     clientsSearch:   "clientsSearch",
@@ -416,11 +419,15 @@ function handleInput(e) {
   };
   const stateKey = searchMap[e.target.id];
   if (!stateKey) return;
+  const id  = e.target.id;
   const pos = e.target.selectionStart;
   state[stateKey] = e.target.value;
-  render();
-  const el = document.getElementById(e.target.id);
-  if (el) { el.focus(); el.setSelectionRange(pos, pos); }
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    render();
+    const el = document.getElementById(id);
+    if (el) { el.focus(); el.setSelectionRange(pos, pos); }
+  }, 150);
 }
 
 function handleChange(e) {

@@ -582,7 +582,9 @@ function renderExerciseHistory() {
         <div class="history-title">${t.weightEvolution}</div>
         <div class="chart-wrap"><canvas id="progressChart"></canvas></div>
       </div>`;
-    setTimeout(() => {
+    if (state.chartTimer) clearTimeout(state.chartTimer);
+    state.chartTimer = setTimeout(() => {
+      state.chartTimer = null;
       if (state.chartInstance) { state.chartInstance.destroy(); state.chartInstance = null; }
       const canvas = document.getElementById("progressChart");
       if (!canvas) return;

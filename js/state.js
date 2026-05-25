@@ -33,6 +33,7 @@ export const state = {
 
   // UI helpers
   chartInstance: null,
+  chartTimer:    null,
   savingTimer:   null,
   toastTimer:    null,
 };
