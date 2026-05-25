@@ -44,3 +44,8 @@ Thumbs.db
 coverage
 *.lcov
 .nyc_output
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
