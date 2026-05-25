@@ -1,24 +1,14 @@
 #!/bin/bash
 set -e
 
-required=(
-  FIREBASE_API_KEY
-  FIREBASE_AUTH_DOMAIN
-  FIREBASE_DATABASE_URL
-  FIREBASE_PROJECT_ID
-  FIREBASE_STORAGE_BUCKET
-  FIREBASE_MESSAGING_SENDER_ID
-  FIREBASE_APP_ID
-)
-
-for var in "${required[@]}"; do
-  if [ -z "${!var}" ]; then
-    echo "ERROR: variable de entorno '$var' no está definida" >&2
-    exit 1
-  fi
-done
-
-cat > js/firebase.js << EOF
+if [ -z "${FIREBASE_API_KEY}" ]; then
+  # Preview/CI build sin credenciales: placeholder para que el build no falle
+  cat > js/firebase.js << 'EOF'
+export const FIREBASE_CONFIG = {};
+EOF
+  echo "js/firebase.js: placeholder (build de preview sin credenciales)"
+else
+  cat > js/firebase.js << EOF
 export const FIREBASE_CONFIG = {
   apiKey:            "${FIREBASE_API_KEY}",
   authDomain:        "${FIREBASE_AUTH_DOMAIN}",
@@ -29,8 +19,8 @@ export const FIREBASE_CONFIG = {
   appId:             "${FIREBASE_APP_ID}"
 };
 EOF
-
-echo "js/firebase.js generado correctamente"
+  echo "js/firebase.js generado correctamente"
+fi
 
 # Inject build version into service worker for cache invalidation
 BUILD_VERSION=$(git rev-parse --short HEAD 2>/dev/null || date +%s)
