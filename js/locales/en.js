@@ -27,6 +27,7 @@ export const en = {
   loginFailed:         "Login error. Please try again.",
   loginGoogleFailed:   "Could not sign in with Google. Please try again.",
   logoutConfirm:       "Sign out?",
+  sessionExpired:      "Session expired. Please sign in again.",
 
   // ── Info panel ───────────────────────────────────────────────────────────────
   infoPanelTitle:      "ℹ Information",

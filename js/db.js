@@ -1,5 +1,5 @@
-import { state }            from "./state.js";
-import { safeKey, CHIN_KEY } from "./config.js";
+import { state }                   from "./state.js";
+import { safeKey, CHIN_KEY, IS_DEV } from "./config.js";
 import { allExNames, defaultEx, todayKey } from "./utils.js";
 
 let db;
@@ -63,7 +63,7 @@ export function adj(clientKey, exKey, field, delta) {
   return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex)
     .catch(e => {
       ex[field] = prev;
-      console.error("[adj] error:", e, { clientKey, exKey, field });
+      if (IS_DEV) console.error("[adj] error:", e, { clientKey, exKey, field });
       return Promise.reject(e);
     });
 }
@@ -79,7 +79,7 @@ export function setField(clientKey, exKey, field, rawVal) {
   return uref(`clients/${clientKey}/exercises/${exKey}`).set(ex)
     .catch(e => {
       ex[field] = prev;
-      console.error("[setField] error:", e, { clientKey, exKey, field, rawVal });
+      if (IS_DEV) console.error("[setField] error:", e, { clientKey, exKey, field, rawVal });
       return Promise.reject(e);
     });
 }
@@ -92,7 +92,7 @@ export function setBand(clientKey, exKey, bandId) {
   return uref(`clients/${clientKey}/exercises/${exKey}/band`).set(bandId || null)
     .catch(e => {
       ex.band = prev;
-      console.error("[setBand] error:", e, { clientKey, exKey, bandId });
+      if (IS_DEV) console.error("[setBand] error:", e, { clientKey, exKey, bandId });
       return Promise.reject(e);
     });
 }

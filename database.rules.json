@@ -3,7 +3,63 @@
     "users": {
       "$uid": {
         ".read":  "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid",
+
+        "clients": {
+          "$clientKey": {
+            "name":      { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 80" },
+            "sex":       { ".validate": "newData.val() === null || newData.isString()" },
+            "birthDate": { ".validate": "newData.val() === null || (newData.isString() && newData.val().length <= 10)" },
+
+            "exercises": {
+              "$exKey": {
+                "weight": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
+                "reps":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+                "sets":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50"  },
+                "band":   { ".validate": "newData.val() === null || newData.isString()" }
+              }
+            },
+
+            "history": {
+              "$exKey": {
+                "$dateKey": {
+                  "ts":     { ".validate": "newData.isNumber() && newData.val() > 0" },
+                  "reps":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+                  "sets":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50"  },
+                  "weight": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
+                  "band":   { ".validate": "newData.val() === null || newData.isString()" }
+                }
+              }
+            }
+          }
+        },
+
+        "customExercises": {
+          "$exKey": {
+            "name":   { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 80" },
+            "custom": { ".validate": "newData.isBoolean()" }
+          }
+        },
+
+        "challenges": {
+          "$challengeKey": {
+            "name":         { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 100" },
+            "exerciseName": { ".validate": "newData.val() === null || (newData.isString() && newData.val().length <= 80)" },
+            "duration":     { ".validate": "newData.val() === null || (newData.isNumber() && newData.val() > 0 && newData.val() <= 86400)" },
+            "metric":       { ".validate": "newData.isString() && (newData.val() === 'reps' || newData.val() === 'cal' || newData.val() === 'time')" },
+            "startDate":    { ".validate": "newData.val() === null || (newData.isString() && newData.val().length <= 10)" },
+            "endDate":      { ".validate": "newData.val() === null || (newData.isString() && newData.val().length <= 10)" },
+            "createdAt":    { ".validate": "newData.isNumber() && newData.val() > 0" },
+            "finished":     { ".validate": "newData.isBoolean()" },
+
+            "results": {
+              "$clientKey": {
+                "value": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 99999" },
+                "ts":    { ".validate": "newData.isNumber() && newData.val() > 0" }
+              }
+            }
+          }
+        }
       }
     }
   }

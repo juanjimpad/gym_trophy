@@ -27,6 +27,7 @@ export const es = {
   loginFailed:         "Error al iniciar sesión. Inténtalo de nuevo.",
   loginGoogleFailed:   "No se pudo iniciar sesión con Google. Inténtalo de nuevo.",
   logoutConfirm:       "¿Cerrar sesión?",
+  sessionExpired:      "Sesión expirada. Inicia sesión de nuevo.",
 
   // ── Info panel ───────────────────────────────────────────────────────────────
   infoPanelTitle:      "ℹ Información",
