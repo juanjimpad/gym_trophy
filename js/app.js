@@ -8,7 +8,7 @@ import { setDb, adj, setField, setBand, saveSession,
          saveChallengeResult, migrateIfNeeded } from "./db.js";
 import { render, showToast, showSaving, showSaveError } from "./render.js";
 import { t } from "./i18n.js";
-import { IS_DEV } from "./config.js";
+import { IS_DEV, APP_VERSION } from "./config.js";
 
 // ── Connectivity ──────────────────────────────────────────────────────────────
 
@@ -40,7 +40,8 @@ initTheme();
 
   const banner = document.getElementById('dev-banner');
   if (!banner) return;
-  banner.textContent = `⚠️ Entorno de desarrollo · ${label}`;
+  const ver = APP_VERSION.includes('BUILD_') ? '' : ` · ${APP_VERSION}`;
+  banner.textContent = `⚠️ Entorno de desarrollo · ${label}${ver}`;
   banner.classList.remove('hidden');
 })();
 
