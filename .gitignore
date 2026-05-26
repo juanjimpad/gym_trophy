@@ -1,5 +1,6 @@
 # Credenciales Firebase — nunca subir al repositorio
 js/firebase.js
+migrate.html
 
 # Configuración local de Claude Code
 .claude/settings.local.json
