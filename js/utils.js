@@ -127,7 +127,7 @@ export function getLeaderboard(exKey) {
   });
 
   results.sort((a, b) => {
-    if (a.value === null && b.value === null) return a.name.localeCompare(b.name);
+    if (a.value === null && b.value === null) return (a.name ?? "").localeCompare(b.name ?? "");
     if (a.value === null) return 1;
     if (b.value === null) return -1;
     if (b.value !== a.value) return b.value - a.value;
