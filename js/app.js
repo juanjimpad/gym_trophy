@@ -25,6 +25,25 @@ function checkOnline() {
 
 initTheme();
 
+// ── Dev banner ────────────────────────────────────────────────────────────────
+
+(function () {
+  const host    = location.hostname;
+  const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '';
+  const isDev   = isLocal || host.includes('.pages.dev') || host.includes('.workers.dev');
+  if (!isDev) return;
+
+  const sub   = host.split('.')[0];
+  const label = isLocal             ? 'local'
+    : (sub && sub !== 'gym-trophy') ? `rama: ${sub}`
+    :                                 'preview';
+
+  const banner = document.getElementById('dev-banner');
+  if (!banner) return;
+  banner.textContent = `⚠️ Entorno de desarrollo · ${label}`;
+  banner.classList.remove('hidden');
+})();
+
 // ── Firebase init ─────────────────────────────────────────────────────────────
 
 firebase.initializeApp(FIREBASE_CONFIG);
