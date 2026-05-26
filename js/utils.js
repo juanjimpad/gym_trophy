@@ -3,7 +3,7 @@ import { BASE_EXERCISES, BANDS, safeKey, CHIN_KEY } from "./config.js";
 import { t } from "./i18n.js";
 
 export function getInitials(n) {
-  return n.trim().split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2);
+  return (n ?? "").trim().split(" ").filter(Boolean).map(w => w[0]).join("").toUpperCase().slice(0, 2) || "?";
 }
 
 export function formatDate(ts) {

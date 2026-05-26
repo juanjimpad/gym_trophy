@@ -225,7 +225,7 @@ function renderClientsList() {
           <div class="panel-client-row" data-action="go-session" data-client="${k}">
             <div class="avatar">${esc(getInitials(c.name))}</div>
             <div class="panel-client-info">
-              <span class="panel-client-name">${esc(c.name)}</span>
+              <span class="panel-client-name">${esc(c.name ?? "")}</span>
               ${meta ? `<span class="panel-client-meta">${meta}</span>` : ""}
             </div>
             <div class="panel-client-actions">
@@ -493,7 +493,7 @@ function renderSession() {
   return `
     ${header(
       `<button class="btn-back" data-action="${backAction}">${backLabel}</button>`,
-      esc(c.name),
+      esc(c.name ?? ""),
       `<span class="saving" id="savingIndicator"></span>`
     )}
     <div class="content">
@@ -635,7 +635,7 @@ function renderExerciseHistory() {
 
   return `
     ${header(
-      `<button class="btn-back" data-action="go-back-session">‹ ${esc(c.name)}</button>`,
+      `<button class="btn-back" data-action="go-back-session">‹ ${esc(c.name ?? "")}</button>`,
       esc(exName)
     )}
     <div class="content">
