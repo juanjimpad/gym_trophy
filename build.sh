@@ -24,5 +24,5 @@ fi
 
 # Inject build version into service worker for cache invalidation
 BUILD_VERSION=$(git rev-parse --short HEAD 2>/dev/null || date +%s)
-sed -i "s/'BUILD_VERSION'/'${BUILD_VERSION}'/g" sw.js
-echo "sw.js versionado como ${BUILD_VERSION}"
+sed -i "s/'BUILD_VERSION'/'${BUILD_VERSION}'/g" sw.js js/config.js
+echo "sw.js + config.js versionados como ${BUILD_VERSION}"

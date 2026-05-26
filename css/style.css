@@ -830,3 +830,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   color: var(--text-2);
   margin-top: 2px;
 }
+
+/* ── Utilities ───────────────────────────────────────────────────────────────── */
+.hidden { display: none; }
+
+/* ── Footer version ─────────────────────────────────────────────────────────── */
+.app-footer-version {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 4px;
+  font-family: ui-monospace, monospace;
+}
+
+/* ── Dev banner ──────────────────────────────────────────────────────────────── */
+.dev-banner {
+  background: #f59e0b;
+  color: #1c1c1e;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  letter-spacing: 0.2px;
+}
