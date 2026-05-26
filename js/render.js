@@ -210,8 +210,8 @@ function renderClientsList() {
   const addModal  = state.showAddClientModal  ? renderAddClientModal()  : "";
   const editModal = state.showEditClientModal ? renderEditClientModal() : "";
   const q         = state.clientsSearch.trim().toLowerCase();
-  const all       = Object.entries(state.clients).sort((a, b) => a[1].name.localeCompare(b[1].name));
-  const sorted    = q ? all.filter(([, c]) => c.name.toLowerCase().includes(q)) : all;
+  const all       = Object.entries(state.clients).sort((a, b) => (a[1].name ?? "").localeCompare(b[1].name ?? ""));
+  const sorted    = q ? all.filter(([, c]) => (c.name ?? "").toLowerCase().includes(q)) : all;
 
   const rows = all.length === 0
     ? `<div class="empty">${t.clientsEmpty}</div>`
@@ -437,7 +437,7 @@ function renderWeightsLeaderboard() {
   const isChin = exKey === CHIN_KEY;
   const q      = state.leaderboardSearch.trim().toLowerCase();
   const board  = q
-    ? getLeaderboard(exKey).filter(e => e.name.toLowerCase().includes(q))
+    ? getLeaderboard(exKey).filter(e => (e.name ?? "").toLowerCase().includes(q))
     : getLeaderboard(exKey);
 
   const rows  = renderSexGroups(board, (e, rank) => lbWeightRow(e, rank, isChin, true));
@@ -791,9 +791,9 @@ function renderChallengeDetail() {
   const q = state.challengeSearch.trim().toLowerCase();
   const clientsSorted = Object.entries(state.clients)
     .map(([ck, c]) => ({ clientKey: ck, name: c.name, sex: c.sex ?? null, birthDate: c.birthDate ?? null, entry: results[ck] ?? null }))
-    .filter(item => !q || item.name.toLowerCase().includes(q))
+    .filter(item => !q || (item.name ?? "").toLowerCase().includes(q))
     .sort((a, b) => {
-      if (!a.entry && !b.entry) return a.name.localeCompare(b.name);
+      if (!a.entry && !b.entry) return (a.name ?? "").localeCompare(b.name ?? "");
       if (!a.entry) return 1;
       if (!b.entry) return -1;
       const valueDiff = isTime ? a.entry.value - b.entry.value : b.entry.value - a.entry.value;
