@@ -28,9 +28,10 @@ initTheme();
 // ── Dev banner ────────────────────────────────────────────────────────────────
 
 (function () {
-  const host    = location.hostname;
-  const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '';
-  const isDev   = isLocal || host.includes('.pages.dev') || host.includes('.workers.dev');
+  const host     = location.hostname;
+  const PROD     = ['gym-trophy.com', 'gym-trophy.workers.dev'];
+  const isLocal  = host === 'localhost' || host === '127.0.0.1' || host === '';
+  const isDev    = !PROD.includes(host) && (isLocal || host.includes('.pages.dev') || host.includes('.workers.dev'));
   if (!isDev) return;
 
   const sub   = host.split('.')[0];
