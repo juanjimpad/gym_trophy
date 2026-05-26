@@ -1,6 +1,6 @@
 import { state }                          from "./state.js";
 import { getTheme }                       from "./theme.js";
-import { BASE_EXERCISES, BANDS, CHALLENGE_DURATIONS, safeKey, CHIN_KEY, APP_VERSION } from "./config.js";
+import { BASE_EXERCISES, BANDS, safeKey, CHIN_KEY, APP_VERSION } from "./config.js";
 import {
   allExNames, getInitials, formatDate, formatDuration, formatDateStr,
   formatMetricValue, metricLabel, metricUnit, isChallengeActive, isChallengeStarted,
@@ -725,8 +725,6 @@ function renderChallengesList() {
 function renderAddChallengeModal() {
   const today      = todayStr();
   const exOptions  = `<option value="">${t.noExercise}</option>` + allExNames().map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
-  const durOptions = `<option value="">${t.noTime}</option>` + CHALLENGE_DURATIONS.map(d => `<option value="${d.value}">${d.label}</option>`).join("");
-
   return `
     <div class="modal-bg" data-action="close-add-challenge">
       <div class="modal modal-lg">
@@ -750,7 +748,7 @@ function renderAddChallengeModal() {
         </div>
 
         <select class="modal-input modal-select" id="challengeExInput">${exOptions}</select>
-        <select class="modal-input modal-select" id="challengeDurationInput">${durOptions}</select>
+        <input type="number" class="modal-input" id="challengeDurationInput" placeholder="${t.durationPh}" min="1" inputmode="numeric" autocomplete="off">
 
         <div class="date-row">
           <div class="date-field">
