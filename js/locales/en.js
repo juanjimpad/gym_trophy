@@ -125,7 +125,7 @@ export const en = {
   metricCal:                "🔥 Calories",
   metricTime:               "⏱ Time",
   noExercise:               "— No exercise —",
-  noTime:                   "— No time —",
+  durationPh:               "Duration in seconds (optional)",
   startDateLabel:           "Start",
   endDateLabel:             "End",
   createChallengeBtn:       "Create challenge",
