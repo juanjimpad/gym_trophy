@@ -41,7 +41,7 @@ initTheme();
 
   const banner = document.getElementById('dev-banner');
   if (!banner) return;
-  const ver = APP_VERSION.includes('BUILD_') ? '' : ` · ${APP_VERSION}`;
+  const ver = (!isLocal && !APP_VERSION.includes('BUILD_')) ? ` · ${APP_VERSION}` : '';
   banner.textContent = `⚠️ Entorno de desarrollo · ${label}${ver}`;
   banner.classList.remove('hidden');
 })();
@@ -157,18 +157,18 @@ function handleClick(e) {
       break;
     }
 
-    case "login-google": {
-      if (!checkOnline()) break;
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then(() => { state.loginError = null; })
-        .catch(err => {
-          if (err.code === "auth/popup-closed-by-user") return;
-          state.loginError = t.loginGoogleFailed;
-          render();
-        });
-      break;
-    }
+    // case "login-google": {
+    //   if (!checkOnline()) break;
+    //   const provider = new firebase.auth.GoogleAuthProvider();
+    //   auth.signInWithPopup(provider)
+    //     .then(() => { state.loginError = null; })
+    //     .catch(err => {
+    //       if (err.code === "auth/popup-closed-by-user") return;
+    //       state.loginError = t.loginGoogleFailed;
+    //       render();
+    //     });
+    //   break;
+    // }
 
     case "set-theme":
       setTheme(el.dataset.theme);
